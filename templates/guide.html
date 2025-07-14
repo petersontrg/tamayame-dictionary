@@ -1,0 +1,199 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="prose max-w-none">
+  <h1 class="text-2xl font-bold mb-4">How to Use the Tamayame Dictionary</h1>
+
+  <p>This page explains how to browse, search, and contribute to the Tamayame Online Dictionary.</p>
+
+  <h2 class="mt-6 text-xl font-semibold">Homepage Features</h2>
+  <ul class="list-disc pl-6">
+    <li><strong>Search bar</strong>: Look up headwords, definitions, or morphemes.</li>
+    <li><strong>Filters</strong>: Filter by type (root, stem, affix, word), POS, and status.</li>
+    <li><strong>Browse by Sound</strong>: Click phonemes grouped by manner of articulation.</li>
+    <li><strong>Export</strong>: Download filtered entries as CSV.</li>
+    <li><strong>Morpheme Tools</strong>: Access the Morpheme Index, Promotion Report, and Allomorph Report.</li>
+  </ul>
+
+  <h2 class="mt-6 text-xl font-semibold">Adding a New Entry</h2>
+  <ol class="list-decimal pl-6">
+    <li>Go to "Add New Entry".</li>
+    <li>Fill out metadata: Headword, Type, Bound Status, POS, Definitions, Notes, etc.</li>
+    <li>Enter morphemes: Segment, Gloss, and Position (e.g. prefix, root).</li>
+    <li>Optionally add Allomorphs: Surface form, Davis ID, UR Gloss Category.</li>
+  </ol>
+
+  <h2 class="mt-6 text-xl font-semibold">Adding Example Sentences</h2>
+  <ol class="list-decimal pl-6">
+    <li>On an entry detail page, click "Add Example Sentence".</li>
+    <li>Enter Tamayame sentence, gloss, and English translation.</li>
+    <li>Use spaces for word breaks and hyphens for morpheme segmentation.</li>
+  </ol>
+
+  <h2 class="mt-6 text-xl font-semibold">Understanding Entry Pages</h2>
+  <ul class="list-disc pl-6">
+    <li><strong>Definition</strong>, <strong>POS</strong>, and <strong>Bound Status</strong>.</li>
+    <li><strong>Morpheme Breakdown</strong>: Interlinear gloss and table.</li>
+    <li><strong>Examples</strong>: Associated usage in context.</li>
+    <li><strong>Used In</strong>: Other entries containing this morpheme in their segmentation.</li>
+    <li><strong>Allomorphs</strong>: Alternate forms linked by UR Gloss or Davis ID.</li>
+  </ul>
+
+  <h2 class="mt-6 text-xl font-semibold">Morpheme Tools</h2>
+  <ul class="list-disc pl-6">
+    <li><strong>Morpheme Index</strong>: List of all morphemes with usage counts.</li>
+    <li><strong>Morpheme Promotion Report</strong>: Promote morphemes to full dictionary entries.</li>
+    <li><strong>Allomorph Report</strong>: Inspect surface forms linked to entries and Davis IDs.</li>
+  </ul>
+
+  <h2 class="mt-6 text-xl font-semibold">Best Practices</h2>
+  <ul class="list-disc pl-6">
+    <li>Follow Leipzig Glossing Rules.</li>
+    <li>Label bound status if known (bound vs free).</li>
+    <li>Promote key roots and affixes for clarity and reuse.</li>
+    <li>Use Davis ID where possible for consistency.</li>
+  </ul>
+
+  <h2 class="mt-6 text-xl font-semibold">Entering Verb Stems with TA and PRMP Allomorphy</h2>
+  <p><strong>Goal:</strong> Model root-based verb entries that exhibit thematic adjunct (TA) suppletion and number agreement via PRMP prefixes, without entering inflected forms as separate headwords.</p>
+
+  <h3 class="mt-4 text-lg font-semibold">Step 1: Add the Verb Root</h3>
+  <ul class="list-disc pl-6">
+    <li>Go to "Add New Entry"</li>
+    <li>Set:
+      <ul class="list-disc pl-6">
+        <li><strong>Headword</strong>: e.g., <code>kacha</code></li>
+        <li><strong>Type</strong>: <code>root</code></li>
+        <li><strong>POS</strong>: <code>V</code></li>
+        <li><strong>Gloss</strong>: <code>see</code></li>
+        <li><strong>Status</strong>: <code>draft</code> or <code>verified</code></li>
+        <li><strong>Bound Status</strong>: <code>bound</code></li>
+        <li><strong>Affix Position</strong>: leave blank</li>
+        <li><strong>Template</strong>: ú/á</li>
+      </ul>
+    </li>
+    <li>Under Morpheme Segmentation, enter:
+      <ul class="list-disc pl-6">
+        <li>segment: <code>kacha</code></li>
+        <li>gloss: <code>see</code></li>
+        <li>position: <code>root</code></li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3 class="mt-4 text-lg font-semibold">Step 2: Add Example Sentences</h3>
+  <p>Use the "Add Example" form for the entry <code>kacha</code>. Add three examples like:</p>
+  <table class="table-auto border mt-2 mb-4">
+    <thead class="bg-gray-100">
+      <tr><th class="px-2 py-1 border">Tamayame</th><th class="px-2 py-1 border">Gloss</th><th class="px-2 py-1 border">English</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="px-2 py-1 border">rèdya gúkacha</td><td class="px-2 py-1 border">rabbit 3.IND.TA.SG-see</td><td class="px-2 py-1 border">He saw a rabbit.</td></tr>
+      <tr><td class="px-2 py-1 border">rèdya gûu’ukacha</td><td class="px-2 py-1 border">rabbit 3.IND.TA.DL-see</td><td class="px-2 py-1 border">They saw two rabbits.</td></tr>
+      <tr><td class="px-2 py-1 border">rèdya gyúwàkacha</td><td class="px-2 py-1 border">rabbit 3.IND.TA.PL-see</td><td class="px-2 py-1 border">They (3+) saw a rabbit.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="mt-4 text-lg font-semibold">Step 3: Manually Link TA Forms</h3>
+<h4 class="mt-4 font-semibold text-gray-700">Insert Verb Root Morpheme</h4>
+<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
+<code>INSERT INTO tamayame_dictionary.morphemes
+(entry_id, segment, gloss, position, ordering, category)
+VALUES
+(423, 'kacha', 'see', 'root', 3, 'root');</code>
+</pre>
+
+<h4 class="mt-4 font-semibold text-gray-700">Insert PRMP Morpheme</h4>
+<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
+<code>INSERT INTO tamayame_dictionary.morphemes
+(entry_id, segment, gloss, position, ordering, category)
+VALUES
+(423, 'g', 'Ind.3', 'prefix', 1, 'affix');</code>
+</pre>
+
+<ul class="list-disc pl-6">
+  <li>121 = subject_allomorph_id for PRMP <code>g-</code> (Davis 121A)</li>
+  <li><code>voice_class</code> reflects underlying vowel behavior (e.g. <code>ú/á</code>)</li>
+</ul>
+
+<h4 class="mt-4 font-semibold text-gray-700">Insert TA Morphemes (Prefix)</h4>
+<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
+<code>-- Singular
+INSERT INTO tamayame_dictionary.morphemes
+(entry_id, segment, gloss, position, ordering, category)
+VALUES
+(423, 'u', 'TA.sg', 'prefix', 2, 'affix');
+
+-- Dual
+INSERT INTO tamayame_dictionary.morphemes
+(entry_id, segment, gloss, position, ordering, category)
+VALUES
+(423, 'uʼu', 'TA.dl', 'prefix', 2, 'affix');
+
+-- Plural
+INSERT INTO tamayame_dictionary.morphemes
+(entry_id, segment, gloss, position, ordering, category)
+VALUES
+(423, 'uwa', 'TA.pl', 'prefix', 2, 'affix');</code>
+</pre>
+
+<h2 class="text-xl font-bold mt-10 mb-4">Verification Queries</h2>
+
+<h3 class="text-lg font-semibold mt-6 mb-2">Verify Morphemes for an Entry</h3>
+<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>
+SELECT segment, gloss, position, ordering, category
+FROM tamayame_dictionary.morphemes
+WHERE entry_id = 423
+ORDER BY ordering;
+</code></pre>
+
+<h3 class="text-lg font-semibold mt-6 mb-2">Verify Entry Metadata</h3>
+<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>
+SELECT entry_id, headword, type, status, pos, affix_position
+FROM tamayame_dictionary.entries
+WHERE entry_id = 423;
+</code></pre>
+
+<h3 class="text-lg font-semibold mt-6 mb-2">Verify Example Sentences</h3>
+<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>
+SELECT tamayame_text, gloss_text, translation_en
+FROM tamayame_dictionary.examples
+WHERE entry_id = 423;
+</code></pre>
+
+<h3 class="text-lg font-semibold mt-6 mb-2">Verify TA Allomorphs</h3>
+<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>
+-- All TA allomorphs
+SELECT *
+FROM tamayame_dictionary.ta_allomorphs
+ORDER BY form;
+
+-- Or filtered by specific form
+SELECT *
+FROM tamayame_dictionary.ta_allomorphs
+WHERE form = 'uwa';
+</code></pre>
+
+<h3 class="text-lg font-semibold mt-6 mb-2">Verify Linked Allomorphs</h3>
+<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>
+SELECT form, category, davis_id
+FROM tamayame_dictionary.allomorphs
+WHERE entry_id = 423;
+</code></pre>
+
+<h3 class="mt-6 text-lg font-semibold">Future Automation (Planned)</h3>
+<p>Steps 3–4 (morpheme insertion and linking) will eventually be streamlined via form-driven workflows or background parsing of examples.</p>
+
+<h3 class="mt-4 text-lg font-semibold">Why This Model?</h3>
+<ul class="list-disc pl-6">
+  <li>Preserves root-based lexicography</li>
+  <li>Links allomorphs and templates without redundancy</li>
+  <li>Supports future inference of agreement and voice class</li>
+</ul>
+
+<div class="mt-8 text-right">
+  <a href="{{ url_for('home') }}" class="inline-block px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+    ← Return to Dictionary Homepage
+  </a>
+</div>
+</div>
+{% endblock %}

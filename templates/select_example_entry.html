@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2 class="text-xl font-bold mb-4">Select Entry to Add Example</h2>
+
+<ul class="space-y-2">
+  {% for entry in entries %}
+    <li>
+      <a href="{{ url_for('add_example', entry_id=entry.entry_id) }}"
+         class="text-indigo-700 hover:underline font-semibold">
+        {{ format_headword(entry.headword, entry.affix_position) }}
+      </a>
+      {% if entry.pos %} — {{ entry.pos }}{% endif %}
+      {% if entry.gloss_en %} — {{ entry.gloss_en }}{% endif %}
+      {% if entry.translation_en %} — <em>{{ entry.translation_en }}</em>{% endif %}
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="text-2xl font-bold mb-4">{{ format_headword(entry['headword'], entry['affix_position']) }}</h2>
+
+
+
+<ul class="mb-4 space-y-1 text-sm">
+  {% if entry['type'] %}<li><strong>Type:</strong> {{ entry['type'] }}</li>{% endif %}
+  {% if entry['bound_status'] and entry['bound_status'] != 'unknown' %}<li><strong>Bound Status:</strong> {{ entry['bound_status'] }}</li>{% endif %}
+  {% if entry['morpheme_break'] %}<li><strong>Morpheme Break:</strong> {{ entry['morpheme_break'] }}</li>{% endif %}
+  {% if entry['pos'] %}<li><strong>Part of Speech:</strong> {{ entry['pos'] }}</li>{% endif %}
+  {% if entry['gloss_en'] %}<li><strong>Gloss:</strong> {{ entry['gloss_en'] }}</li>{% endif %}
+  {% if entry['translation_en'] %}<li><strong>Translation:</strong> {{ entry['translation_en'] }}</li>{% endif %}
+  {% if entry['definition_tamayame'] %}<li><strong>Tamayame Definition:</strong> {{ entry['definition_tamayame'] }}</li>{% endif %}
+  {% if entry['notes'] %}<li><strong>Notes:</strong> {{ entry['notes'] }}</li>{% endif %}
+  {% if entry['affix_position'] and entry['affix_position'] != 'unknown' %}<li><strong>Affix Position:</strong> {{ entry['affix_position'] }}</li>{% endif %}
+</ul>
+
+<a href="{{ url_for('add_example', entry_id=entry['entry_id']) }}" class="inline-block mb-6 px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">➕ Add Example</a>
+
+{% if template %}
+  <div class="mb-6">
+    <h3 class="text-lg font-semibold text-gray-700">Morphosyntactic Template</h3>
+    <p class="text-sm"><strong>{{ template['name'] }}</strong> — {{ template['description'] }}</p>
+    {% if template['slots'] %}
+      <p class="text-sm text-gray-600 mt-1"><strong>Slots:</strong> {{ template['slots'] | join(', ') }}</p>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% if morphemes %}
+  <h3 class="text-lg font-semibold text-gray-700 mt-6">Morphemes</h3>
+  <table class="text-sm border mt-2 w-full">
+    <thead>
+      <tr class="bg-gray-100 border-b">
+        <th class="px-2 py-1 text-left">Segment</th>
+        <th class="px-2 py-1 text-left">Gloss</th>
+        <th class="px-2 py-1 text-left">Position</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in morphemes %}
+        <tr class="border-b">
+          <td class="px-2 py-1 font-mono">{{ m['segment'] }}</td>
+          <td class="px-2 py-1">{{ m['gloss'] }}</td>
+          <td class="px-2 py-1 text-gray-600">{{ m['position'] }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+
+{% if allomorphs %}
+  <h3 class="text-lg font-semibold text-gray-700 mt-6">Allomorphs</h3>
+  <table class="text-sm border mt-2 w-full">
+    <thead>
+      <tr class="bg-gray-100 border-b">
+        <th class="px-2 py-1 text-left">Form</th>
+        <th class="px-2 py-1 text-left">Category</th>
+        <th class="px-2 py-1 text-left">Davis ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in allomorphs %}
+        <tr class="border-b">
+          <td class="px-2 py-1 font-mono">{{ a['form'] }}</td>
+          <td class="px-2 py-1">{{ a['category'] }}</td>
+          <td class="px-2 py-1">{{ a['davis_id'] or '—' }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+
+{% if examples %}
+  <h3 class="text-lg font-semibold text-gray-700 mt-6">Examples</h3>
+  <ul class="text-sm mt-2 space-y-2">
+    {% for ex in examples %}
+      <li>
+        <div><strong>{{ ex['tamayame_text'] }}</strong></div>
+        <div class="font-mono">{{ ex['gloss_text'] }}</div>
+        <div class="italic text-gray-600">{{ ex['translation_en'] }}</div>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% if cross_examples %}
+  <h3 class="text-lg font-semibold text-gray-700 mt-6">Examples from Other Entries</h3>
+  <ul class="text-sm mt-2 space-y-2">
+    {% for ex in cross_examples %}
+      <li>
+        <div><strong>{{ ex['headword'] }}</strong>: {{ ex['tamayame_text'] }}</div>
+        <div class="font-mono">{{ ex['gloss_text'] }}</div>
+        <div class="italic text-gray-600">{{ ex['translation_en'] }}</div>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% if related %}
+  <h3 class="text-lg font-semibold text-gray-700 mt-6">Used In</h3>
+  <ul class="text-sm mt-2 space-y-1">
+    {% for r in related %}
+      <li>
+        <a href="{{ url_for('entry_detail', entry_id=r['entry_id']) }}" class="text-indigo-700 hover:underline">
+          {{ r['headword'] }} ({{ r['type'] }}) — {{ r['translation_en'] or r['gloss_en'] }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<p class="mt-8 text-sm">
+  <a href="{{ url_for('home') }}" class="text-indigo-600 hover:underline">⬅ Return to Dictionary</a>
+</p>
+
+{% endblock %}

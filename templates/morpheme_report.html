@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="text-xl font-bold mb-4">Morpheme Promotion Report</h2>
+
+<p class="text-sm text-gray-600 mb-4">
+  This report lists morphemes categorized as <strong>roots</strong> or <strong>affixes</strong> that have not yet been added as full dictionary entries. You can promote them below.
+</p>
+
+<table class="w-full text-sm border">
+  <thead class="bg-gray-100 border-b">
+    <tr>
+      <th class="text-left px-2 py-1">Segment</th>
+      <th class="text-left px-2 py-1">Gloss</th>
+      <th class="text-left px-2 py-1">Category</th>
+      <th class="text-left px-2 py-1">Used In</th>
+      <th class="text-left px-2 py-1">Status</th>
+      <th class="text-left px-2 py-1">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for seg, gloss, category, used_in, promoted, entry_id, position in morphemes %}
+    <tr class="border-b">
+      <td class="px-2 py-1 font-mono">
+        {% if promoted %}
+          <a href="{{ url_for('entry_detail', entry_id=entry_id) }}"
+             class="text-indigo-700 hover:underline">
+            {{ format_headword(seg, position) }}
+          </a>
+        {% else %}
+          {{ format_headword(seg, position) }}
+        {% endif %}
+      </td>
+      <td class="px-2 py-1">{{ gloss }}</td>
+      <td class="px-2 py-1 text-gray-600">{{ category }}</td>
+      <td class="px-2 py-1 space-x-1 text-gray-700">
+        {% if used_in %}
+          {% for word in used_in %}
+            <span class="inline-block bg-gray-100 px-2 py-0.5 rounded">{{ word }}</span>
+          {% endfor %}
+        {% else %}
+          <span class="text-gray-400 italic">—</span>
+        {% endif %}
+      </td>
+      <td class="px-2 py-1">
+        {% if promoted %}
+          <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">✔ Promoted</span>
+        {% else %}
+          <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Not yet in entries</span>
+        {% endif %}
+      </td>
+      <td class="px-2 py-1">
+        {% if not promoted %}
+        <form method="POST" action="{{ url_for('promote_morpheme') }}">
+          <input type="hidden" name="segment" value="{{ seg }}">
+          <input type="hidden" name="gloss" value="{{ gloss }}">
+          <input type="hidden" name="category" value="{{ category }}">
+          <button type="submit" class="text-xs text-blue-600 hover:underline">
+            ➕ Promote
+          </button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p class="mt-6 text-right">
+  <a href="{{ url_for('home') }}" class="text-sm text-indigo-600 hover:underline">
+    ⬅ Return to Dictionary
+  </a>
+</p>
+
+{% endblock %}

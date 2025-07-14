@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="text-xl font-bold mb-4 text-center">Allomorph Report</h2>
+
+<div class="flex justify-center">
+  <table class="table-auto text-sm border border-collapse">
+    <thead class="bg-gray-100 border-b">
+      <tr>
+        <th class="px-1 py-1 whitespace-nowrap">Form</th>
+        <th class="px-1 py-1 whitespace-nowrap">UR Gloss</th>
+        <th class="px-1 py-1 whitespace-nowrap">Davis ID</th>
+        <th class="px-1 py-1 whitespace-nowrap">Linked Entry</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for form, ur_gloss, davis_id, entry_id, headword, type, affix_position in allomorphs %}
+      <tr class="border-b">
+        <td class="px-1 py-1 font-mono whitespace-nowrap">
+  {% if entry_id %}
+    {{ format_headword(form, affix_position) }}
+  {% else %}
+    {{ form }}
+  {% endif %}
+</td>
+        <td class="px-1 py-1 font-mono whitespace-nowrap">{{ ur_gloss }}</td>
+        <td class="px-1 py-1 whitespace-nowrap">{{ davis_id or '—' }}</td>
+<td class="px-1 py-1 whitespace-nowrap">
+  {% if entry_id %}
+    <a href="{{ url_for('entry_detail', entry_id=entry_id) }}" class="text-indigo-700 hover:underline">
+      {{ format_headword(headword, affix_position) }} ({{ type }})
+    </a>
+  {% else %}
+    <span class="text-gray-400 italic">No match</span>
+  {% endif %}
+</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p class="mt-6 text-right">
+  <a href="{{ url_for('home') }}" class="text-sm text-indigo-600 hover:underline">
+    ⬅ Return to Dictionary
+  </a>
+</p>
+
+{% endblock %}

@@ -1,0 +1,193 @@
+{% extends "layout.html" %}
+{% block content %}
+  {% if message %}
+    <div class="mb-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded">
+      {{ message }}
+    </div>
+  {% endif %}
+
+  <h2 class="text-xl font-bold mb-4">Add New Entry</h2>
+
+  <form method="POST" action="/add">
+    <!-- Entry Metadata -->
+    <div class="space-y-4 mb-6">
+      <label class="block">
+        Headword:
+        <input type="text" name="headword" required class="border rounded px-3 py-1 w-full">
+      </label>
+
+      <label class="block">
+        Type:
+        <select name="type" required class="border rounded px-3 py-1 w-full">
+          <option value="">-- Select Type --</option>
+          <option value="root">Root</option>
+          <option value="stem">Stem</option>
+          <option value="affix">Affix</option>
+          <option value="word">Word</option>
+          <option value="particle">Particle</option>
+        </select>
+      </label>
+
+      <label class="block">
+        Bound Status:
+        <select name="bound_status" class="border rounded px-3 py-1 w-full">
+          <option value="">-- Select Bound Status --</option>
+          <option value="unknown">Unknown</option>
+          <option value="bound">Bound</option>
+          <option value="free">Free</option>
+        </select>
+      </label>
+
+      <label class="block">
+        Affix Position:
+        <select name="affix_position" class="border rounded px-3 py-1 w-full">
+          <option value="">-- Select Affix Position --</option>
+          <option value="unknown">Unknown</option>
+          <option value="prefix">Prefix</option>
+          <option value="suffix">Suffix</option>
+        </select>
+      </label>
+
+      <label class="block">
+        Morpheme Break:
+        <input type="text" name="morpheme_break" class="border rounded px-3 py-1 w-full">
+      </label>
+
+      <label class="block">
+        Part of Speech:
+        <input type="text" name="pos" class="border rounded px-3 py-1 w-full">
+      </label>
+
+      <label class="block">
+        English Gloss:
+        <input type="text" name="gloss_en" class="border rounded px-3 py-1 w-full">
+      </label>
+
+      <label class="block">
+        English Translation:
+        <input type="text" name="translation_en" class="border rounded px-3 py-1 w-full">
+      </label>
+
+      <label class="block">
+        Tamayame Definition:
+        <input type="text" name="definition_tamayame" class="border rounded px-3 py-1 w-full">
+      </label>
+
+      <label class="block">
+        Notes:
+        <textarea name="notes" class="border rounded px-3 py-1 w-full"></textarea>
+      </label>
+
+      <label class="block">
+        Source:
+        <input type="text" name="source" class="border rounded px-3 py-1 w-full">
+      </label>
+
+      <label class="block">
+        Status:
+        <select name="status" class="border rounded px-3 py-1 w-full">
+          <option value="">-- Select Status --</option>
+          <option value="draft">Draft</option>
+          <option value="verified">Verified</option>
+        </select>
+      </label>
+
+      <label class="block">
+        Morphosyntactic Template:
+        <select name="template_id" class="border rounded px-3 py-1 w-full">
+          <option value="">-- Select Template --</option>
+          {% for t in templates %}
+            <option value="{{ t['template_id'] }}">{{ t['name'] }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <!-- Morphemes -->
+    <h3 class="text-lg font-semibold mb-2">Morphemes</h3>
+    <div id="morpheme-container" class="space-y-2">
+      {% for i in range(4) %}
+      <div class="grid grid-cols-4 gap-2 items-center morpheme-row">
+        <input name="segment[]" placeholder="Segment" class="border px-2 py-1 rounded" />
+        <input name="gloss[]" placeholder="Gloss" class="border px-2 py-1 rounded" />
+        <select name="position[]" class="border px-2 py-1 rounded">
+          <option value="">-- Position --</option>
+          <option value="prefix">Prefix</option>
+          <option value="proclitic">Proclitic</option>
+          <option value="root">Root</option>
+          <option value="suffix">Suffix</option>
+          <option value="enclitic">Enclitic</option>
+          <option value="stem">Stem</option>
+          <option value="particle">Particle</option>
+          <option value="unknown">Unknown</option>
+        </select>
+        <button type="button" onclick="removeRow(this)" class="text-red-600 hover:underline">✖ Remove</button>
+      </div>
+      {% endfor %}
+    </div>
+
+    <button type="button" onclick="addRow()" class="mt-2 text-sm text-indigo-600 hover:underline">
+      ➕ Add another morpheme
+    </button>
+
+    <!-- Allomorphs -->
+    <h3 class="text-lg font-semibold mt-6 mb-2">Allomorphs</h3>
+    <div id="allomorph-container" class="space-y-2">
+      <div class="grid grid-cols-3 gap-2 allomorph-row">
+        <input name="allomorph_form[]" placeholder="Allomorph Form" class="border px-2 py-1 rounded" />
+        <input name="davis_id[]" placeholder="Davis ID" class="border px-2 py-1 rounded" />
+        <input name="allomorph_category[]" placeholder="Category" class="border px-2 py-1 rounded" />
+      </div>
+    </div>
+    <button type="button" onclick="addAllomorphRow()" class="mt-2 text-sm text-indigo-600 hover:underline">
+      ➕ Add another allomorph
+    </button>
+
+    <!-- Submit -->
+    <div class="mt-6">
+      <input type="submit" value="Add Entry"
+             class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+    </div>
+  </form>
+
+  <script>
+    function addRow() {
+      const container = document.getElementById("morpheme-container");
+      const row = document.createElement("div");
+      row.className = "grid grid-cols-4 gap-2 items-center morpheme-row";
+      row.innerHTML = `
+        <input name="segment[]" placeholder="Segment" class="border px-2 py-1 rounded" />
+        <input name="gloss[]" placeholder="Gloss" class="border px-2 py-1 rounded" />
+        <select name="position[]" class="border px-2 py-1 rounded">
+          <option value="">-- Position --</option>
+          <option value="prefix">Prefix</option>
+          <option value="proclitic">Proclitic</option>
+          <option value="root">Root</option>
+          <option value="suffix">Suffix</option>
+          <option value="enclitic">Enclitic</option>
+          <option value="stem">Stem</option>
+          <option value="particle">Particle</option>
+          <option value="unknown">Unknown</option>
+        </select>
+        <button type="button" onclick="removeRow(this)" class="text-red-600 hover:underline">✖ Remove</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function removeRow(button) {
+      button.closest(".morpheme-row").remove();
+    }
+
+    function addAllomorphRow() {
+      const container = document.getElementById("allomorph-container");
+      const row = document.createElement("div");
+      row.className = "grid grid-cols-3 gap-2 allomorph-row";
+      row.innerHTML = `
+        <input name="allomorph_form[]" placeholder="Allomorph Form" class="border px-2 py-1 rounded" />
+        <input name="davis_id[]" placeholder="Davis ID" class="border px-2 py-1 rounded" />
+        <input name="allomorph_category[]" placeholder="Category" class="border px-2 py-1 rounded" />
+      `;
+      container.appendChild(row);
+    }
+  </script>
+{% endblock %}

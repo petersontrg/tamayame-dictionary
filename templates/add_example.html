@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h2 class="text-xl font-bold mb-4">Add Example Sentences</h2>
+
+  {% if message %}
+    <div class="mb-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded">
+      {{ message }}
+    </div>
+  {% endif %}
+
+  <h3 class="text-lg font-semibold mb-2">Examples</h3>
+
+  <form method="POST">
+    <div id="example-container" class="space-y-4 mb-6">
+      {% for i in range(3) %}
+      <div class="grid grid-cols-6 gap-2 items-start example-row">
+        <textarea name="tamayame_text[]" placeholder="Tamayame Text"
+          class="border px-2 py-1 rounded col-span-6 sm:col-span-3"></textarea>
+        <textarea name="gloss_text[]" placeholder="Gloss"
+          class="border px-2 py-1 rounded col-span-6 sm:col-span-2"></textarea>
+        <textarea name="translation_en[]" placeholder="English Translation"
+          class="border px-2 py-1 rounded col-span-6 sm:col-span-3"></textarea>
+        <button type="button" onclick="removeRow(this)"
+          class="text-red-600 hover:underline col-span-6 sm:col-span-1">✖ Remove</button>
+      </div>
+      {% endfor %}
+    </div>
+
+    <button type="button" onclick="addRow()" class="text-sm text-indigo-600 hover:underline mb-6">
+      ➕ Add another example
+    </button>
+
+    <div class="mt-6">
+      <input type="submit" value="Save Examples"
+             class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+    </div>
+  </form>
+
+  <hr class="my-6">
+  <p>
+    <a href="{{ url_for('entry_detail', entry_id=entry_id) }}"
+       class="text-sm text-indigo-600 hover:underline">
+      ← Back to entry {{ entry_id }}
+    </a>
+  </p>
+
+  <script>
+    function addRow() {
+      const container = document.getElementById("example-container");
+      const row = document.createElement("div");
+      row.className = "grid grid-cols-6 gap-2 items-start example-row";
+      row.innerHTML = `
+        <textarea name="tamayame_text[]" placeholder="Tamayame Text"
+          class="border px-2 py-1 rounded col-span-6 sm:col-span-3"></textarea>
+        <textarea name="gloss_text[]" placeholder="Gloss"
+          class="border px-2 py-1 rounded col-span-6 sm:col-span-2"></textarea>
+        <textarea name="translation_en[]" placeholder="English Translation"
+          class="border px-2 py-1 rounded col-span-6 sm:col-span-3"></textarea>
+        <button type="button" onclick="removeRow(this)"
+          class="text-red-600 hover:underline col-span-6 sm:col-span-1">✖ Remove</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function removeRow(button) {
+      button.closest(".example-row").remove();
+    }
+  </script>
+{% endblock %}

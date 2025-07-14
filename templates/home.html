@@ -1,0 +1,124 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- Header Controls -->
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+  <a href="{{ url_for('add_entry') }}"
+     class="inline-block mb-2 sm:mb-0 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+    ➕ Add New Entry
+  </a>
+<a href="{{ url_for('select_entry_for_example') }}"
+   class="inline-block mb-2 sm:mb-0 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+  ➕ Add Example
+</a>
+</div>
+
+<!-- Morpheme Tools -->
+<div class="mb-6 text-sm text-right space-x-4">
+  <a href="{{ url_for('morpheme_index') }}" class="text-indigo-700 hover:underline">Morpheme Index</a>
+  <a href="{{ url_for('morpheme_report') }}" class="text-indigo-700 hover:underline">Morpheme Promotion Report</a>
+  <a href="{{ url_for('allomorph_report') }}" class="text-indigo-700 hover:underline">Allomorph Report</a>
+  <a href="{{ url_for('draft_entries') }}" class="text-sm text-indigo-700 hover:underline">Draft entries</a>
+</div>
+
+<!-- Browse by Sound -->
+<div class="mb-8">
+  <h3 class="text-lg font-semibold text-gray-700 mb-2">Browse by Sound (Grouped by Manner)</h3>
+  <div class="space-y-3">
+    {% set phoneme_groups = {
+      "Stops": ["b", "p", "pʼ", "d", "t", "tʼ", "dy", "ty", "tyʼ", "g", "k", "kʼ", "ʼ"],
+      "Fricatives": ["s", "sʼ", "sh", "shʼ", "sr", "srʼ", "h"],
+      "Affricates": ["dz", "ts", "tsʼ", "(j)", "ch", "chʼ", "dr", "tr", "trʼ"],
+      "Taps": ["r", "rʼ"],
+      "Liquids": ["w", "wʼ", "y", "yʼ"],
+      "Nasals": ["m", "mʼ", "n", "nʼ", "ny", "nyʼ"]
+    } %}
+    {% for manner, phonemes in phoneme_groups.items() %}
+      <div>
+        <span class="inline-block font-semibold text-gray-700 w-40">{{ manner }}</span>
+        {% for ph in phonemes %}
+          <a href="{{ url_for('home', startswith=ph, q=search, type=entry_type, pos=pos, status=status) }}"
+             class="inline-block px-2 py-1 mx-1 text-sm border border-indigo-300 rounded hover:bg-indigo-100 {% if startswith == ph %}bg-indigo-600 text-white{% else %}text-indigo-700{% endif %}">
+            {{ ph }}
+          </a>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div> 
+</div>
+
+<!-- Search and Filters -->
+<form method="get" class="mb-6 space-y-4">
+  <input type="text" name="q" placeholder="Search headwords or definitions"
+         value="{{ search or '' }}"
+         class="border border-gray-300 px-3 py-2 rounded w-full">
+
+  <div class="flex flex-wrap gap-4">
+    <label>
+      Type:
+      <select name="type" class="border rounded px-2 py-1">
+        <option value="">Any</option>
+        {% for opt in ['root', 'stem', 'affix', 'word', 'particle'] %}
+          <option value="{{ opt }}" {% if entry_type == opt %}selected{% endif %}>{{ opt }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      Part of Speech:
+      <input type="text" name="pos" value="{{ pos or '' }}" class="border rounded px-2 py-1">
+    </label>
+
+    <label>
+      Status:
+      <select name="status" class="border rounded px-2 py-1">
+        <option value="">Any</option>
+        {% for opt in ['draft', 'verified'] %}
+          <option value="{{ opt }}" {% if status == opt %}selected{% endif %}>{{ opt }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </div>
+
+  <!-- Submit + New Search -->
+  <div class="flex gap-2 mt-2">
+    <button type="submit" class="px-4 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+      Search
+    </button>
+    <a href="{{ url_for('home') }}"
+       class="px-4 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+      New Search
+    </a>
+  </div>
+</form>
+
+<!-- Results -->
+{% for t in ['root', 'stem', 'affix', 'word', 'particle'] %}
+  {% set filtered = entries | selectattr('type', 'equalto', t) | list %}
+  {% if filtered %}
+    <h3 class="mt-6 mb-2 text-lg font-bold text-gray-700 capitalize">{{ t }}</h3>
+    <ul class="space-y-1">
+      {% for entry in filtered %}
+        <li>
+          <a href="{{ url_for('entry_detail', entry_id=entry['entry_id']) }}"
+             class="text-indigo-700 hover:underline font-bold">
+            {{ format_headword(entry['headword'], entry['affix_position']) }}
+          </a>
+          {% if entry['pos'] %} — {{ entry['pos'] }}{% endif %}
+          {% if entry['gloss_en'] %} — {{ entry['gloss_en'] }}{% endif %}
+          {% if entry['translation_en'] %} — <em>{{ entry['translation_en'] }}</em>{% endif %}
+			    {% if entry['status'] == 'draft' %}
+      <form method="POST" action="{{ url_for('update_status', entry_id=entry['entry_id']) }}" class="inline-block ml-2">
+        <input type="hidden" name="status" value="verified">
+        <button type="submit" class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded hover:bg-green-200">
+          ✅ Mark Verified
+        </button>
+      </form>
+    {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endfor %}
+
+{% endblock %}
