@@ -1,0 +1,36 @@
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+env/
+venv/
+ENV/
+.venv/
+
+# Editor/project settings
+*.sublime-workspace
+*.sublime-project
+
+# SQLite DBs and backups (optional)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Logs and temporary files
+*.log
+*.bak
+*.tmp
+
+# Flask instance folder (optional)
+instance/
+
+# Excel or test data
+*.xlsx
+*.xls
