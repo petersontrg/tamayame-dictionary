@@ -58,3 +58,4 @@ Notes
 temp_*.py
 templates/*working_backup.html
 templates.csv
+.gitignore.sb-*
