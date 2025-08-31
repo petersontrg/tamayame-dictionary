@@ -2,7 +2,6 @@
 {% block content %}
 <div class="prose max-w-none">
   <h1 class="text-2xl font-bold mb-4">How to Use the Tamayame Dictionary</h1>
-
   <p>This page explains how to browse, search, and contribute to the Tamayame Online Dictionary.</p>
 
   <h2 class="mt-6 text-xl font-semibold">Homepage Features</h2>
@@ -53,147 +52,153 @@
     <li>Use Davis ID where possible for consistency.</li>
   </ul>
 
-  <h2 class="mt-6 text-xl font-semibold">Entering Verb Stems with TA and PRMP Allomorphy</h2>
-  <p><strong>Goal:</strong> Model root-based verb entries that exhibit thematic adjunct (TA) suppletion and number agreement via PRMP prefixes, without entering inflected forms as separate headwords.</p>
+  <h2 class="mt-6 text-xl font-semibold">Guide: Modeling TA Suppletion &amp; PRMP Prefixes</h2>
 
-  <h3 class="mt-4 text-lg font-semibold">Step 1: Add the Verb Root</h3>
-  <ul class="list-disc pl-6">
-    <li>Go to "Add New Entry"</li>
-    <li>Set:
+  <h3 class="mt-4 text-lg font-semibold">1. Add the Verb Root</h3>
+  <ol class="list-decimal pl-6">
+    <li>In your <strong>Add New Entry</strong> form:
       <ul class="list-disc pl-6">
-        <li><strong>Headword</strong>: e.g., <code>kacha</code></li>
+        <li><strong>Headword</strong>: <code>kacha</code></li>
         <li><strong>Type</strong>: <code>root</code></li>
         <li><strong>POS</strong>: <code>V</code></li>
         <li><strong>Gloss</strong>: <code>see</code></li>
-        <li><strong>Status</strong>: <code>draft</code> or <code>verified</code></li>
+        <li><strong>Status</strong>: <code>draft</code> (or <code>verified</code>)</li>
         <li><strong>Bound Status</strong>: <code>bound</code></li>
-        <li><strong>Affix Position</strong>: leave blank</li>
-        <li><strong>Template</strong>: ú/á</li>
+        <li><strong>Template</strong> (voice_class): <code>ú/á</code></li>
       </ul>
     </li>
-    <li>Under Morpheme Segmentation, enter:
+    <li>Under <strong>Morpheme Segmentation</strong>, add one row:
       <ul class="list-disc pl-6">
-        <li>segment: <code>kacha</code></li>
-        <li>gloss: <code>see</code></li>
-        <li>position: <code>root</code></li>
+        <li><strong>segment</strong>: <code>kacha</code></li>
+        <li><strong>gloss</strong>: <code>see</code></li>
+        <li><strong>position</strong>: <code>root</code></li>
       </ul>
     </li>
-  </ul>
+    <li>Save the entry; note its <code>entry_id</code> (e.g. <code>423</code>).</li>
+  </ol>
 
-  <h3 class="mt-4 text-lg font-semibold">Step 2: Add Example Sentences</h3>
-  <p>Use the "Add Example" form for the entry <code>kacha</code>. Add three examples like:</p>
+  <h3 class="mt-4 text-lg font-semibold">2. Add Example Sentences</h3>
+  <p>For entry <code>423</code> (“kacha”), use the Add Example form to create these three:</p>
   <table class="table-auto border mt-2 mb-4">
     <thead class="bg-gray-100">
-      <tr><th class="px-2 py-1 border">Tamayame</th><th class="px-2 py-1 border">Gloss</th><th class="px-2 py-1 border">English</th></tr>
+      <tr>
+        <th class="px-2 py-1 border">Tamayame</th>
+        <th class="px-2 py-1 border">Gloss</th>
+        <th class="px-2 py-1 border">English</th>
+        <th class="px-2 py-1 border">example_id</th>
+      </tr>
     </thead>
     <tbody>
-      <tr><td class="px-2 py-1 border">rèdya gúkacha</td><td class="px-2 py-1 border">rabbit 3.IND.TA.SG-see</td><td class="px-2 py-1 border">He saw a rabbit.</td></tr>
-      <tr><td class="px-2 py-1 border">rèdya gûu’ukacha</td><td class="px-2 py-1 border">rabbit 3.IND.TA.DL-see</td><td class="px-2 py-1 border">They saw two rabbits.</td></tr>
-      <tr><td class="px-2 py-1 border">rèdya gyúwàkacha</td><td class="px-2 py-1 border">rabbit 3.IND.TA.PL-see</td><td class="px-2 py-1 border">They (3+) saw a rabbit.</td></tr>
+      <tr>
+        <td class="px-2 py-1 border"><code>rèdya g-ú-kacha</code></td>
+        <td class="px-2 py-1 border"><code>rabbit 3.IND.TA.SG-see</code></td>
+        <td class="px-2 py-1 border">He saw a rabbit.</td>
+        <td class="px-2 py-1 border">11</td>
+      </tr>
+      <tr>
+        <td class="px-2 py-1 border"><code>rèdya g-ûuʼu-kacha</code></td>
+        <td class="px-2 py-1 border"><code>rabbit 3.IND.TA.DL-see</code></td>
+        <td class="px-2 py-1 border">They (two) saw a rabbit.</td>
+        <td class="px-2 py-1 border">12</td>
+      </tr>
+      <tr>
+        <td class="px-2 py-1 border"><code>rèdya g-úwà-kacha</code></td>
+        <td class="px-2 py-1 border"><code>rabbit 3.IND.TA.PL-see</code></td>
+        <td class="px-2 py-1 border">They (3+) saw a rabbit.</td>
+        <td class="px-2 py-1 border">13</td>
+      </tr>
     </tbody>
   </table>
 
-  <h3 class="mt-4 text-lg font-semibold">Step 3: Manually Link TA Forms</h3>
-<h4 class="mt-4 font-semibold text-gray-700">Insert Verb Root Morpheme</h4>
-<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
-<code>INSERT INTO tamayame_dictionary.morphemes
-(entry_id, segment, gloss, position, ordering, category)
-VALUES
-(423, 'kacha', 'see', 'root', 3, 'root');</code>
-</pre>
-
-<h4 class="mt-4 font-semibold text-gray-700">Insert PRMP Morpheme</h4>
-<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
-<code>INSERT INTO tamayame_dictionary.morphemes
-(entry_id, segment, gloss, position, ordering, category)
-VALUES
-(423, 'g', 'Ind.3', 'prefix', 1, 'affix');</code>
-</pre>
-
-<ul class="list-disc pl-6">
-  <li>121 = subject_allomorph_id for PRMP <code>g-</code> (Davis 121A)</li>
-  <li><code>voice_class</code> reflects underlying vowel behavior (e.g. <code>ú/á</code>)</li>
-</ul>
-
-<h4 class="mt-4 font-semibold text-gray-700">Insert TA Morphemes (Prefix)</h4>
-<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
-<code>-- Singular
+  <h3 class="mt-4 text-lg font-semibold">3. Insert the Morphemes (PRMP + TA)</h3>
+  <p>Run these SQL INSERTs against your <code>morphemes</code> table:</p>
+  <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>-- PRMP prefix + TA allomorphs
 INSERT INTO tamayame_dictionary.morphemes
-(entry_id, segment, gloss, position, ordering, category)
+  (entry_id, segment, gloss, position, ordering, category)
 VALUES
-(423, 'u', 'TA.sg', 'prefix', 2, 'affix');
-
--- Dual
-INSERT INTO tamayame_dictionary.morphemes
-(entry_id, segment, gloss, position, ordering, category)
-VALUES
-(423, 'uʼu', 'TA.dl', 'prefix', 2, 'affix');
-
--- Plural
-INSERT INTO tamayame_dictionary.morphemes
-(entry_id, segment, gloss, position, ordering, category)
-VALUES
-(423, 'uwa', 'TA.pl', 'prefix', 2, 'affix');</code>
-</pre>
-
-<h2 class="text-xl font-bold mt-10 mb-4">Verification Queries</h2>
-
-<h3 class="text-lg font-semibold mt-6 mb-2">Verify Morphemes for an Entry</h3>
-<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>
-SELECT segment, gloss, position, ordering, category
+  (423, 'g',    'Ind.3',    'prefix', 1, 'affix'),
+  (423, 'ú',    'TA.sg',    'prefix', 2, 'affix'),
+  (423, 'ûuʼu', 'TA.dl',    'prefix', 2, 'affix'),
+  (423, 'úwà',  'TA.pl',    'prefix', 2, 'affix');</code></pre>
+  <p>Then grab their IDs:</p>
+  <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>SELECT morpheme_id, segment
 FROM tamayame_dictionary.morphemes
 WHERE entry_id = 423
-ORDER BY ordering;
-</code></pre>
+  AND segment IN ('g','ú','ûuʼu','úwà');</code></pre>
 
-<h3 class="text-lg font-semibold mt-6 mb-2">Verify Entry Metadata</h3>
-<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>
-SELECT entry_id, headword, type, status, pos, affix_position
-FROM tamayame_dictionary.entries
-WHERE entry_id = 423;
-</code></pre>
+  <h3 class="mt-4 text-lg font-semibold">4. Link Examples to Morphemes</h3>
+  <h4 class="mt-2 font-semibold">4A. Create the join table</h4>
+  <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>CREATE TABLE tamayame_dictionary.example_morphemes (
+  example_id   INTEGER NOT NULL
+    REFERENCES tamayame_dictionary.examples(example_id)
+    ON DELETE CASCADE,
+  morpheme_id  INTEGER NOT NULL
+    REFERENCES tamayame_dictionary.morphemes(morpheme_id)
+    ON DELETE CASCADE,
+  ordering     SMALLINT,
+  PRIMARY KEY (example_id, morpheme_id, ordering)
+);</code></pre>
+  <h4 class="mt-2 font-semibold">4B. Populate for examples 11–13</h4>
+  <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>INSERT INTO tamayame_dictionary.example_morphemes
+  (example_id, morpheme_id, ordering)
+VALUES
+  (11, 39, 1),
+  (11, 40, 2),
+  (11, 38, 3),
+  (12, 39, 1),
+  (12, 41, 2),
+  (12, 38, 3),
+  (13, 39, 1),
+  (13, 42, 2),
+  (13, 38, 3);</code></pre>
 
-<h3 class="text-lg font-semibold mt-6 mb-2">Verify Example Sentences</h3>
-<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>
-SELECT tamayame_text, gloss_text, translation_en
-FROM tamayame_dictionary.examples
-WHERE entry_id = 423;
-</code></pre>
-
-<h3 class="text-lg font-semibold mt-6 mb-2">Verify TA Allomorphs</h3>
-<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>
--- All TA allomorphs
-SELECT *
+  <h3 class="mt-4 text-lg font-semibold">5. Link Morphemes to TA Allomorph Definitions</h3>
+  <h4 class="mt-2 font-semibold">5A. Create the mapping table</h4>
+  <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>CREATE TABLE tamayame_dictionary.morpheme_ta_allomorph (
+  morpheme_id   INTEGER NOT NULL
+    REFERENCES tamayame_dictionary.morphemes(morpheme_id)
+    ON DELETE CASCADE,
+  ta_id         INTEGER NOT NULL
+    REFERENCES tamayame_dictionary.ta_allomorphs(ta_id)
+    ON DELETE CASCADE,
+  PRIMARY KEY (morpheme_id, ta_id)
+);</code></pre>
+  <h4 class="mt-2 font-semibold">5B. Grab the TA IDs for <code>ú/á</code></h4>
+  <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>SELECT ta_id, form, number
 FROM tamayame_dictionary.ta_allomorphs
-ORDER BY form;
+WHERE voice_class = 'ú/á'
+  AND form IN ('ú','ûuʼu','úwà');</code></pre>
+  <p><em>Assume you get <code>ta_id = 4, 27, 50</code>.</em></p>
+  <h4 class="mt-2 font-semibold">5C. Populate the mapping</h4>
+  <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>INSERT INTO tamayame_dictionary.morpheme_ta_allomorph
+  (morpheme_id, ta_id)
+VALUES
+  (40,  4),
+  (41, 27),
+  (42, 50);</code></pre>
 
--- Or filtered by specific form
-SELECT *
-FROM tamayame_dictionary.ta_allomorphs
-WHERE form = 'uwa';
-</code></pre>
+  <h3 class="mt-4 text-lg font-semibold">6. Assign the Entry’s Voice Class</h3>
+  <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>ALTER TABLE tamayame_dictionary.entries
+  ADD COLUMN IF NOT EXISTS template TEXT;
 
-<h3 class="text-lg font-semibold mt-6 mb-2">Verify Linked Allomorphs</h3>
-<pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>
-SELECT form, category, davis_id
-FROM tamayame_dictionary.allomorphs
-WHERE entry_id = 423;
-</code></pre>
+UPDATE tamayame_dictionary.entries
+SET template = 'ú/á'
+WHERE entry_id = 423;</code></pre>
 
-<h3 class="mt-6 text-lg font-semibold">Future Automation (Planned)</h3>
-<p>Steps 3–4 (morpheme insertion and linking) will eventually be streamlined via form-driven workflows or background parsing of examples.</p>
+  <h3 class="mt-4 text-lg font-semibold">7. Create a Consolidated View</h3>
+  <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>CREATE OR REPLACE VIEW tamayame_dictionary.entry_ta_allomorphs AS
+SELECT
+  e.entry_id,
+  ta.ta_id,
+  ta.form,
+  ta.number,
+  ta.voice_class
+FROM tamayame_dictionary.entries          AS e
+JOIN tamayame_dictionary.morphemes        AS m  ON m.entry_id = e.entry_id
+JOIN tamayame_dictionary.morpheme_ta_allomorph AS mta ON mta.morpheme_id = m.morpheme_id
+JOIN tamayame_dictionary.ta_allomorphs    AS ta ON ta.ta_id = mta.ta_id;</code></pre>
 
-<h3 class="mt-4 text-lg font-semibold">Why This Model?</h3>
-<ul class="list-disc pl-6">
-  <li>Preserves root-based lexicography</li>
-  <li>Links allomorphs and templates without redundancy</li>
-  <li>Supports future inference of agreement and voice class</li>
-</ul>
+  
 
-<div class="mt-8 text-right">
-  <a href="{{ url_for('home') }}" class="inline-block px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
-    ← Return to Dictionary Homepage
-  </a>
-</div>
 </div>
 {% endblock %}

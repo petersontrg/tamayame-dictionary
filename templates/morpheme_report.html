@@ -1,75 +1,60 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<h2 class="text-xl font-bold mb-4">Morpheme Promotion Report</h2>
+<h2 class="text-xl font-semibold mb-4">Morpheme: <span class="font-mono">{{ segment }}</span></h2>
 
-<p class="text-sm text-gray-600 mb-4">
-  This report lists morphemes categorized as <strong>roots</strong> or <strong>affixes</strong> that have not yet been added as full dictionary entries. You can promote them below.
+<p class="mb-6">
+  <a href="{{ url_for('morpheme_index') }}" class="text-indigo-700 hover:underline">← Back to Morpheme Index</a>
 </p>
 
-<table class="w-full text-sm border">
-  <thead class="bg-gray-100 border-b">
-    <tr>
-      <th class="text-left px-2 py-1">Segment</th>
-      <th class="text-left px-2 py-1">Gloss</th>
-      <th class="text-left px-2 py-1">Category</th>
-      <th class="text-left px-2 py-1">Used In</th>
-      <th class="text-left px-2 py-1">Status</th>
-      <th class="text-left px-2 py-1">Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for seg, gloss, category, used_in, promoted, entry_id, position in morphemes %}
-    <tr class="border-b">
-      <td class="px-2 py-1 font-mono">
-        {% if promoted %}
-          <a href="{{ url_for('entry_detail', entry_id=entry_id) }}"
-             class="text-indigo-700 hover:underline">
-            {{ format_headword(seg, position) }}
-          </a>
-        {% else %}
-          {{ format_headword(seg, position) }}
-        {% endif %}
-      </td>
-      <td class="px-2 py-1">{{ gloss }}</td>
-      <td class="px-2 py-1 text-gray-600">{{ category }}</td>
-      <td class="px-2 py-1 space-x-1 text-gray-700">
-        {% if used_in %}
-          {% for word in used_in %}
-            <span class="inline-block bg-gray-100 px-2 py-0.5 rounded">{{ word }}</span>
-          {% endfor %}
-        {% else %}
-          <span class="text-gray-400 italic">—</span>
-        {% endif %}
-      </td>
-      <td class="px-2 py-1">
-        {% if promoted %}
-          <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">✔ Promoted</span>
-        {% else %}
-          <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Not yet in entries</span>
-        {% endif %}
-      </td>
-      <td class="px-2 py-1">
-        {% if not promoted %}
-        <form method="POST" action="{{ url_for('promote_morpheme') }}">
-          <input type="hidden" name="segment" value="{{ seg }}">
-          <input type="hidden" name="gloss" value="{{ gloss }}">
-          <input type="hidden" name="category" value="{{ category }}">
-          <button type="submit" class="text-xs text-blue-600 hover:underline">
-            ➕ Promote
-          </button>
-        </form>
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-<p class="mt-6 text-right">
-  <a href="{{ url_for('home') }}" class="text-sm text-indigo-600 hover:underline">
-    ⬅ Return to Dictionary
-  </a>
+  <div>
+    <h3 class="text-lg font-bold mb-2">Entries using “{{ segment }}”</h3>
+    {% if entries %}
+      <ul class="space-y-1">
+        {% for e in entries %}
+          <li class="text-sm">
+            <a href="{{ url_for('entry_detail', entry_id=e['entry_id']) }}"
+               class="text-indigo-700 hover:underline font-medium">
+              {{ e['headword'] }}
+            </a>
+            {% if e.get('pos') %}<span class="text-gray-600">({{ e['pos'] }})</span>{% endif %}
+            {% if e.get('translation_en') %}<span class="ml-1 text-gray-700">— {{ e['translation_en'] }}</span>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-sm text-gray-600">No entries found.</p>
+    {% endif %}
+  </div>
+
+
+  <div>
+    <h3 class="text-lg font-bold mb-2">Examples containing “{{ segment }}”</h3>
+    {% if examples %}
+      <ol class="list-decimal pl-6 space-y-1">
+        {% for ex in examples %}
+          <li class="text-sm">
+            <a href="{{ url_for('example_detail', example_id=ex['example_id']) }}"
+               class="text-indigo-700 hover:underline">
+              {{ ex['tamayame_text'] }}
+            </a>
+            {% if ex.get('translation_en') %}
+              <span class="ml-1 text-gray-700">— {{ ex['translation_en'] }}</span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <p class="text-sm text-gray-600">No examples found.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<p class="mt-6">
+  <a href="{{ url_for('home') }}" class="text-indigo-700 hover:underline">Home</a>
 </p>
 
 {% endblock %}

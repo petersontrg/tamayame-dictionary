@@ -6,18 +6,21 @@
     </div>
   {% endif %}
 
-  <h2 class="text-xl font-bold mb-4">Add New Entry</h2>
+  <h2 class="text-xl font-bold mb-6">Add New Entry</h2>
 
-  <form method="POST" action="/add">
-    <!-- Entry Metadata -->
-    <div class="space-y-4 mb-6">
-      <label class="block">
+  <form method="POST" action="/add" class="space-y-6">
+
+    <!-- Identification -->
+    <div class="p-4 border rounded shadow bg-white">
+      <h3 class="text-lg font-semibold mb-2">Identification</h3>
+
+      <label class="block mb-2">
         Headword:
         <input type="text" name="headword" required class="border rounded px-3 py-1 w-full">
       </label>
 
-      <label class="block">
-        Type:
+      <label class="block mb-2">
+        Morphological Type:
         <select name="type" required class="border rounded px-3 py-1 w-full">
           <option value="">-- Select Type --</option>
           <option value="root">Root</option>
@@ -28,7 +31,7 @@
         </select>
       </label>
 
-      <label class="block">
+      <label class="block mb-2">
         Bound Status:
         <select name="bound_status" class="border rounded px-3 py-1 w-full">
           <option value="">-- Select Bound Status --</option>
@@ -42,47 +45,190 @@
         Affix Position:
         <select name="affix_position" class="border rounded px-3 py-1 w-full">
           <option value="">-- Select Affix Position --</option>
-          <option value="unknown">Unknown</option>
           <option value="prefix">Prefix</option>
           <option value="suffix">Suffix</option>
         </select>
       </label>
+    </div>
 
-      <label class="block">
+    <!-- Linguistic Features -->
+    <div class="p-4 border rounded shadow bg-white">
+      <h3 class="text-lg font-semibold mb-2">Linguistic Features</h3>
+
+      <label class="block mb-2">
         Morpheme Break:
         <input type="text" name="morpheme_break" class="border rounded px-3 py-1 w-full">
       </label>
 
-      <label class="block">
+      <label class="block mb-2">
         Part of Speech:
-        <input type="text" name="pos" class="border rounded px-3 py-1 w-full">
+        <select name="pos" class="border rounded px-3 py-1 w-full">
+          <option value="">-- Select POS --</option>
+          <option value="n.">noun</option>
+          <option value="v.">verb</option>
+          <option value="adj.">adjective</option>
+          <option value="adv.">adverb</option>
+          <option value="part.">particle</option>
+          <option value="cl.">clitic</option>
+          <option value="aff.">affix</option>
+          <option value="unknown">unknown</option>
+        </select>
+      </label>
+
+      <label class="block mb-2">
+        Transitivity:
+        <select name="transitivity" class="border rounded px-3 py-1 w-full">
+          <option value="">-- Select Transitivity --</option>
+          <option value="transitive">Transitive</option>
+          <option value="intransitive">Intransitive</option>
+          <option value="ambitransitive">Ambitransitive</option>
+          <option value="unknown">Unknown</option>
+        </select>
+      </label>
+
+      <label class="block mb-2">
+        Voice Class (for transitive verb roots only):
+        <select name="voice_class" class="border rounded px-3 py-1 w-full">
+          <option value="">-- Select Voice Class --</option>
+          <option value="i/a">i/a</option>
+          <option value="ú/á">ú/á</option>
+          <option value="a/a">a/a</option>
+          <option value="ai/ai">ai/ai</option>
+          <option value="au/au">au/au</option>
+          <option value="i/i">i/i</option>
+          <option value="u/a">u/a</option>
+          <option value="u/u">u/u</option>
+          <option value="unknown">unknown</option>
+        </select>
+      </label>
+
+      <label class="block mb-2">
+        Primary Paradigm Class (for transitive verb roots only):
+        <select name="primary_paradigm_class_id" class="border rounded px-3 py-1 w-full">
+          <option value="">-- Select Class --</option>
+          {% for c in primary_paradigm_classes %}
+            <option value="{{ c.id }}">{{ c.name }} – {{ c.description }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="block mb-2">
+        Suffix Subclass (for transitive verbs only):
+        <select name="suffix_subclass_id" class="border rounded px-3 py-1 w-full">
+          <option value="">-- Select Subclass --</option>
+          {% for s in suffix_subclasses %}
+            <option value="{{ s.id }}">{{ s.name }} – {{ s.description }}</option>
+          {% endfor %}
+        </select>
       </label>
 
       <label class="block">
-        English Gloss:
+        Pronunciation (IPA):
+        <input type="text" name="ipa" class="border rounded px-3 py-1 w-full" placeholder="[IPA]">
+      </label>
+    </div>
+
+    <!-- Intransitive Classification -->
+    <fieldset id="intransitive-class-section" class="border p-4 rounded mb-4 hidden">
+      <legend class="text-sm font-semibold text-gray-700">
+        Intransitive Verb Classes &amp; Thematic Adjuncts
+      </legend>
+
+      <!-- A/B template choice -->
+      <div class="mb-3 flex items-center gap-6">
+        <span class="text-sm text-gray-700 font-medium mr-2">Intransitive Type</span>
+
+        <label class="inline-flex items-center gap-2">
+          <input type="radio" name="intransitive_type" value="A" class="accent-indigo-600" checked>
+          <span class="text-sm">Type A <span class="text-gray-500">(100/200 before ROOT)</span></span>
+        </label>
+
+        <label class="inline-flex items-center gap-2">
+          <input type="radio" name="intransitive_type" value="B" class="accent-indigo-600">
+          <span class="text-sm">Type B <span class="text-gray-500">(100/200 after ROOT)</span></span>
+        </label>
+      </div>
+
+      <!-- 3-column grid for sg / dl / pl -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Singular -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">Singular Class (X–X)</label>
+          <select name="intrans_sg_class_id" class="border rounded px-2 py-1 w-full">
+            <option value="">— Select —</option>
+            {% for c in intransitive_classes %}
+              <option value="{{ c.id }}">{{ c.label or c.class_code or c.name }}</option>
+            {% endfor %}
+          </select>
+
+          <label class="block text-sm font-medium text-gray-700 mt-2">Singular TA</label>
+          <select name="intrans_sg_ta_id" id="ta_sg" class="border rounded px-2 py-1 w-full">
+            <option value="">— Select —</option>
+          </select>
+        </div>
+
+        <!-- Dual -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">Dual Class (X–X)</label>
+          <select name="intrans_dl_class_id" class="border rounded px-2 py-1 w-full">
+            <option value="">— Select —</option>
+            {% for c in intransitive_classes %}
+              <option value="{{ c.id }}">{{ c.label or c.class_code or c.name }}</option>
+            {% endfor %}
+          </select>
+
+          <label class="block text-sm font-medium text-gray-700 mt-2">Dual TA</label>
+          <select name="intrans_dl_ta_id" id="ta_dl" class="border rounded px-2 py-1 w-full">
+            <option value="">— Select —</option>
+          </select>
+        </div>
+
+        <!-- Plural -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">Plural Class (X–X)</label>
+          <select name="intrans_pl_class_id" class="border rounded px-2 py-1 w-full">
+            <option value="">— Select —</option>
+            {% for c in intransitive_classes %}
+              <option value="{{ c.id }}">{{ c.label or c.class_code or c.name }}</option>
+            {% endfor %}
+          </select>
+
+          <label class="block text-sm font-medium text-gray-700 mt-2">Plural TA</label>
+          <select name="intrans_pl_ta_id" id="ta_pl" class="border rounded px-2 py-1 w-full">
+            <option value="">— Select —</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="mt-3 text-xs text-gray-500">
+        Tip: “Type A” places PRMP/FUT before the root; “Type B” places PRMP/FUT after the root. This choice
+        helps template matching later.
+      </p>
+    </fieldset>
+
+    <!-- Meaning & Notes -->
+    <div class="p-4 border rounded shadow bg-white">
+      <h3 class="text-lg font-semibold mb-2">Meaning and Notes</h3>
+      <label class="block mb-2">
+        English Gloss (for grammatical terms):
         <input type="text" name="gloss_en" class="border rounded px-3 py-1 w-full">
       </label>
-
-      <label class="block">
+      <label class="block mb-2">
         English Translation:
         <input type="text" name="translation_en" class="border rounded px-3 py-1 w-full">
       </label>
-
-      <label class="block">
+      <label class="block mb-2">
         Tamayame Definition:
         <input type="text" name="definition_tamayame" class="border rounded px-3 py-1 w-full">
       </label>
-
-      <label class="block">
+      <label class="block mb-2">
         Notes:
         <textarea name="notes" class="border rounded px-3 py-1 w-full"></textarea>
       </label>
-
-      <label class="block">
+      <label class="block mb-2">
         Source:
         <input type="text" name="source" class="border rounded px-3 py-1 w-full">
       </label>
-
       <label class="block">
         Status:
         <select name="status" class="border rounded px-3 py-1 w-full">
@@ -91,103 +237,62 @@
           <option value="verified">Verified</option>
         </select>
       </label>
-
-      <label class="block">
-        Morphosyntactic Template:
-        <select name="template_id" class="border rounded px-3 py-1 w-full">
-          <option value="">-- Select Template --</option>
-          {% for t in templates %}
-            <option value="{{ t['template_id'] }}">{{ t['name'] }}</option>
-          {% endfor %}
-        </select>
-      </label>
     </div>
 
     <!-- Morphemes -->
-    <h3 class="text-lg font-semibold mb-2">Morphemes</h3>
-    <div id="morpheme-container" class="space-y-2">
-      {% for i in range(4) %}
-      <div class="grid grid-cols-4 gap-2 items-center morpheme-row">
-        <input name="segment[]" placeholder="Segment" class="border px-2 py-1 rounded" />
-        <input name="gloss[]" placeholder="Gloss" class="border px-2 py-1 rounded" />
-        <select name="position[]" class="border px-2 py-1 rounded">
-          <option value="">-- Position --</option>
-          <option value="prefix">Prefix</option>
-          <option value="proclitic">Proclitic</option>
-          <option value="root">Root</option>
-          <option value="suffix">Suffix</option>
-          <option value="enclitic">Enclitic</option>
-          <option value="stem">Stem</option>
-          <option value="particle">Particle</option>
-          <option value="unknown">Unknown</option>
-        </select>
-        <button type="button" onclick="removeRow(this)" class="text-red-600 hover:underline">✖ Remove</button>
-      </div>
-      {% endfor %}
+    <div class="p-4 border rounded shadow bg-white">
+      {% include "partials/_morpheme_block.html" %}
     </div>
-
-    <button type="button" onclick="addRow()" class="mt-2 text-sm text-indigo-600 hover:underline">
-      ➕ Add another morpheme
-    </button>
-
-    <!-- Allomorphs -->
-    <h3 class="text-lg font-semibold mt-6 mb-2">Allomorphs</h3>
-    <div id="allomorph-container" class="space-y-2">
-      <div class="grid grid-cols-3 gap-2 allomorph-row">
-        <input name="allomorph_form[]" placeholder="Allomorph Form" class="border px-2 py-1 rounded" />
-        <input name="davis_id[]" placeholder="Davis ID" class="border px-2 py-1 rounded" />
-        <input name="allomorph_category[]" placeholder="Category" class="border px-2 py-1 rounded" />
-      </div>
-    </div>
-    <button type="button" onclick="addAllomorphRow()" class="mt-2 text-sm text-indigo-600 hover:underline">
-      ➕ Add another allomorph
-    </button>
 
     <!-- Submit -->
-    <div class="mt-6">
-      <input type="submit" value="Add Entry"
-             class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+    <div class="text-right">
+      <input type="submit" value="Add Entry" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
     </div>
   </form>
 
+  <!-- SCRIPTS LIVE INSIDE THE CONTENT BLOCK -->
   <script>
-    function addRow() {
-      const container = document.getElementById("morpheme-container");
-      const row = document.createElement("div");
-      row.className = "grid grid-cols-4 gap-2 items-center morpheme-row";
-      row.innerHTML = `
-        <input name="segment[]" placeholder="Segment" class="border px-2 py-1 rounded" />
-        <input name="gloss[]" placeholder="Gloss" class="border px-2 py-1 rounded" />
-        <select name="position[]" class="border px-2 py-1 rounded">
-          <option value="">-- Position --</option>
-          <option value="prefix">Prefix</option>
-          <option value="proclitic">Proclitic</option>
-          <option value="root">Root</option>
-          <option value="suffix">Suffix</option>
-          <option value="enclitic">Enclitic</option>
-          <option value="stem">Stem</option>
-          <option value="particle">Particle</option>
-          <option value="unknown">Unknown</option>
-        </select>
-        <button type="button" onclick="removeRow(this)" class="text-red-600 hover:underline">✖ Remove</button>
-      `;
-      container.appendChild(row);
-    }
+  // Show the intransitive block only when: (type is Root or Stem) AND Transitivity = Intransitive
+  function toggleIntransitiveSection() {
+    const type  = (document.querySelector('[name="type"]')?.value || '').toLowerCase();
+    const trans = (document.querySelector('[name="transitivity"]')?.value || '').toLowerCase();
+    const section = document.getElementById('intransitive-class-section');
+    const okType = (type === 'root' || type === 'stem');
+    section.classList.toggle('hidden', !(okType && trans === 'intransitive'));
+  }
 
-    function removeRow(button) {
-      button.closest(".morpheme-row").remove();
-    }
+  document.addEventListener('DOMContentLoaded', () => {
+    toggleIntransitiveSection();
+    document.querySelector('[name="type"]').addEventListener('change', toggleIntransitiveSection);
+    document.querySelector('[name="transitivity"]').addEventListener('change', toggleIntransitiveSection);
+  });
+  </script>
 
-    function addAllomorphRow() {
-      const container = document.getElementById("allomorph-container");
-      const row = document.createElement("div");
-      row.className = "grid grid-cols-3 gap-2 allomorph-row";
-      row.innerHTML = `
-        <input name="allomorph_form[]" placeholder="Allomorph Form" class="border px-2 py-1 rounded" />
-        <input name="davis_id[]" placeholder="Davis ID" class="border px-2 py-1 rounded" />
-        <input name="allomorph_category[]" placeholder="Category" class="border px-2 py-1 rounded" />
-      `;
-      container.appendChild(row);
+  <script>
+  // Populate TA selects (sg / dl / pl) from backend
+  async function loadTA(number, selectId) {
+    try {
+      const res = await fetch(`/ta-options/${number}`);
+      if (!res.ok) return;
+      const { options = [] } = await res.json();
+      const sel = document.getElementById(selectId);
+      if (!sel) return;
+      sel.innerHTML = '<option value="">— Select —</option>';
+      options.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o.id;
+        opt.textContent = o.label;     // already “label (sg|dl|pl)” from server helper
+        opt.dataset.number = (o.number || '').toLowerCase();
+        sel.appendChild(opt);
+      });
+    } catch (e) {
+      console.error('TA load failed:', number, e);
     }
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    loadTA('sg', 'ta_sg');
+    loadTA('dl', 'ta_dl');   // server normalizes dual/du/dl → "dl"
+    loadTA('pl', 'ta_pl');
+  });
   </script>
 {% endblock %}
