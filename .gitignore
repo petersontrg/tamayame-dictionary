@@ -1,61 +1,59 @@
-# OS-specific
+# --- OS / Editor junk ---
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+.gitignore.sb-*
 
-# Python cache
+# --- Python cache ---
 __pycache__/
 *.py[cod]
+*.pyo
 *.so
-*.pyc
 
-# Virtual environments
+# --- Virtual environments ---
 env/
 venv/
 ENV/
 .venv/
 
-# Editor/project settings
-*.sublime-workspace
-*.sublime-project
-
-# SQLite DBs and backups (optional)
+# --- SQLite DBs and backups ---
 *.db
 *.db-journal
 *.sqlite
 *.sqlite3
+*_backup.py
+*_old.py
 
-# Logs and temporary files
+# --- Logs and temporary files ---
 *.log
 *.bak
 *.tmp
 temp_*.py
+duplicate_attempts.log
 
-# Flask instance folder (optional)
+# --- Flask instance folder ---
 instance/
 
-# Excel or test data
+# --- Excel or test data ---
 *.xlsx
 *.xls
+templates.csv
+Notes
 
-# Local exports
+# --- Local archives ---
 zip/
 *.zip
 
-# Media and uploads
+# --- Media and uploads (keep these out of Git) ---
 static/uploads/
 static/img/
 *.jpg
+*.jpeg
 *.png
 *.mov
 *.mp3
 *.pdf
 *.psql
-Notes
-
-# Backups / temp
-*_backup.py
-*_old.py
-temp_*.py
-templates/*working_backup.html
-templates.csv
-.gitignore.sb-*
