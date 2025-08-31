@@ -34,3 +34,25 @@ instance/
 # Excel or test data
 *.xlsx
 *.xls
+
+# Backups and temp
+*_backup.py
+*_old.py
+*_working_backup.html
+temp_*.py
+Notes
+templates.csv
+
+# Local exports
+zip/
+*.zip
+
+# Media and uploads
+static/uploads/
+static/img/
+*.jpg
+*.png
+*.mov
+*.mp3
+*.pdf
+*.psql
