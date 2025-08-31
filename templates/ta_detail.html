@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="prose max-w-none">
+  <h1 class="text-2xl font-bold mb-4">TA Form: <span class="font-mono">{{ ta.form }}</span></h1>
+  <ul class="text-sm space-y-1 mb-6">
+    <li><strong>Number:</strong> {{ ta.number|upper }}</li>
+    <li><strong>Voice Class:</strong> {{ ta.voice_class }}</li>
+    {% if ta.notes %}<li><strong>Notes:</strong> {{ ta.notes }}</li>{% endif %}
+  </ul>
+
+  <h2 class="text-xl font-semibold mb-2">Used In</h2>
+  <ul class="list-disc pl-6 text-sm">
+    {% for row in used %}
+      <li>
+        <a href="{{ url_for('entry_detail', entry_id=row[0]) }}" class="text-indigo-700 hover:underline">
+          {{ row[1] }}
+        </a>
+        — {{ row[2] }}
+      </li>
+    {% endfor %}
+  </ul>
+
+  <p class="mt-8 text-sm">
+    <a href="{{ url_for('home') }}" class="text-indigo-600 hover:underline">⬅ Back to home</a>
+  </p>
+</div>
+{% endblock %}

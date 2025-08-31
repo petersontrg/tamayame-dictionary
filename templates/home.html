@@ -5,30 +5,30 @@
 <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
   <a href="{{ url_for('add_entry') }}"
      class="inline-block mb-2 sm:mb-0 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
-    ➕ Add New Entry
+    ➕ Add new Headword
   </a>
-<a href="{{ url_for('select_entry_for_example') }}"
-   class="inline-block mb-2 sm:mb-0 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
-  ➕ Add Example
-</a>
+  <a href="{{ url_for('select_entry_for_example') }}"
+     class="inline-block mb-2 sm:mb-0 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+    ➕ Add example sentence
+  </a>
 </div>
 
 <!-- Morpheme Tools -->
-<div class="mb-6 text-sm text-right space-x-4">
+<div class="mb-6 text-sm text-left space-x-4">
   <a href="{{ url_for('morpheme_index') }}" class="text-indigo-700 hover:underline">Morpheme Index</a>
-  <a href="{{ url_for('morpheme_report') }}" class="text-indigo-700 hover:underline">Morpheme Promotion Report</a>
   <a href="{{ url_for('allomorph_report') }}" class="text-indigo-700 hover:underline">Allomorph Report</a>
-  <a href="{{ url_for('draft_entries') }}" class="text-sm text-indigo-700 hover:underline">Draft entries</a>
+  <a href="{{ url_for('stem_report') }}" class="text-indigo-700 hover:underline">Stem Report</a>
+<a href="{{ url_for('draft_entries') }}" class="hover:underline">Drafts</a>
 </div>
 
 <!-- Browse by Sound -->
 <div class="mb-8">
-  <h3 class="text-lg font-semibold text-gray-700 mb-2">Browse by Sound (Grouped by Manner)</h3>
+  <h3 class="text-lg font-semibold text-gray-700 mb-2">Browse by Sound (grouped by Manner)</h3>
   <div class="space-y-3">
     {% set phoneme_groups = {
       "Stops": ["b", "p", "pʼ", "d", "t", "tʼ", "dy", "ty", "tyʼ", "g", "k", "kʼ", "ʼ"],
       "Fricatives": ["s", "sʼ", "sh", "shʼ", "sr", "srʼ", "h"],
-      "Affricates": ["dz", "ts", "tsʼ", "(j)", "ch", "chʼ", "dr", "tr", "trʼ"],
+      "Affricates": ["dz", "ts", "tsʼ", "j", "ch", "chʼ", "dr", "tr", "trʼ"],
       "Taps": ["r", "rʼ"],
       "Liquids": ["w", "wʼ", "y", "yʼ"],
       "Nasals": ["m", "mʼ", "n", "nʼ", "ny", "nyʼ"]
@@ -44,7 +44,7 @@
         {% endfor %}
       </div>
     {% endfor %}
-  </div> 
+  </div>
 </div>
 
 <!-- Search and Filters -->
@@ -80,45 +80,202 @@
     </label>
   </div>
 
-  <!-- Submit + New Search -->
   <div class="flex gap-2 mt-2">
-    <button type="submit" class="px-4 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+    <button type="submit" class="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
       Search
     </button>
     <a href="{{ url_for('home') }}"
-       class="px-4 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+       class="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
       New Search
     </a>
   </div>
 </form>
 
-<!-- Results -->
-{% for t in ['root', 'stem', 'affix', 'word', 'particle'] %}
-  {% set filtered = entries | selectattr('type', 'equalto', t) | list %}
-  {% if filtered %}
+{# ---------------- Roots (dedicated, paginated) ---------------- #}
+{% if roots %}
+  <h3 class="mt-6 mb-2 text-lg font-bold text-gray-700">Roots</h3>
+  <ul class="space-y-1">
+    {% for entry in roots %}
+      <li class="text-sm">
+        <a href="{{ url_for('entry_detail', entry_id=entry['entry_id']) }}"
+           class="text-indigo-700 hover:underline font-bold text-base">
+          {{ format_headword(entry['headword'], entry.get('affix_position')) }}
+        </a>
+        {% if entry.get('ipa') %}
+          <span class="ml-2 text-base text-gray-600">[{{ entry['ipa'] }}]</span>
+        {% endif %}
+        {% if entry.get('pos') %}
+          <span class="ml-2 text-gray-600">({{ entry['pos'] }})</span>
+        {% endif %}
+        {% if entry.get('translation_en') %}
+          <span class="ml-1 text-gray-700">{{ entry['translation_en'] }}</span>
+        {% endif %}
+        {% if entry.get('status') == 'draft' %}
+          <form method="POST" action="{{ url_for('update_status', entry_id=entry['entry_id']) }}" class="inline-block ml-2">
+            <input type="hidden" name="status" value="verified">
+            <button type="submit" class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded hover:bg-green-200">
+              ✅ Mark Verified
+            </button>
+          </form>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if roots_pages > 1 %}
+    <div class="my-3 flex items-center gap-2 text-sm">
+      <span class="text-gray-600">
+        Roots page {{ root_page }} of {{ roots_pages }} · {{ roots_total }} roots
+      </span>
+      <div class="ml-auto flex gap-2">
+        {% if root_page > 1 %}
+          <a class="px-3 py-1 rounded border hover:bg-gray-50"
+             href="{{ url_for('home',
+                 q=search, type=entry_type, pos=pos, status=status, startswith=startswith,
+                 page=page, per_page=per_page,
+                 root_page=1, root_per_page=root_per_page,
+                 word_page=word_page, word_per_page=word_per_page
+               ) }}">« First</a>
+          <a class="px-3 py-1 rounded border hover:bg-gray-50"
+             href="{{ url_for('home',
+                 q=search, type=entry_type, pos=pos, status=status, startswith=startswith,
+                 page=page, per_page=per_page,
+                 root_page=root_page-1, root_per_page=root_per_page,
+                 word_page=word_page, word_per_page=word_per_page
+               ) }}">‹ Prev</a>
+        {% else %}
+          <span class="px-3 py-1 rounded border text-gray-400">« First</span>
+          <span class="px-3 py-1 rounded border text-gray-400">‹ Prev</span>
+        {% endif %}
+
+        {% if root_page < roots_pages %}
+          <a class="px-3 py-1 rounded border hover:bg-gray-50"
+             href="{{ url_for('home',
+                 q=search, type=entry_type, pos=pos, status=status, startswith=startswith,
+                 page=page, per_page=per_page,
+                 root_page=root_page+1, root_per_page=root_per_page,
+                 word_page=word_page, word_per_page=word_per_page
+               ) }}">Next ›</a>
+          <a class="px-3 py-1 rounded border hover:bg-gray-50"
+             href="{{ url_for('home',
+                 q=search, type=entry_type, pos=pos, status=status, startswith=startswith,
+                 page=page, per_page=per_page,
+                 root_page=roots_pages, root_per_page=root_per_page,
+                 word_page=word_page, word_per_page=word_per_page
+               ) }}">Last »</a>
+        {% else %}
+          <span class="px-3 py-1 rounded border text-gray-400">Next ›</span>
+          <span class="px-3 py-1 rounded border text-gray-400">Last »</span>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+
+{# ---------------- Affix / Stem / Particle (from main list) ---------------- #}
+{% for t in ['affix', 'stem', 'particle'] %}
+  {% set bucket = [] %}
+  {% for e in entries %}
+    {% if (e.get('type') | default('') | string | lower | trim) == t %}
+      {% set _ = bucket.append(e) %}
+    {% endif %}
+  {% endfor %}
+  {% if bucket %}
     <h3 class="mt-6 mb-2 text-lg font-bold text-gray-700 capitalize">{{ t }}</h3>
     <ul class="space-y-1">
-      {% for entry in filtered %}
-        <li>
+      {% for entry in bucket %}
+        <li class="text-sm">
           <a href="{{ url_for('entry_detail', entry_id=entry['entry_id']) }}"
-             class="text-indigo-700 hover:underline font-bold">
-            {{ format_headword(entry['headword'], entry['affix_position']) }}
+             class="text-indigo-700 hover:underline font-bold text-base">
+            {{ format_headword(entry['headword'], entry.get('affix_position')) }}
           </a>
-          {% if entry['pos'] %} — {{ entry['pos'] }}{% endif %}
-          {% if entry['gloss_en'] %} — {{ entry['gloss_en'] }}{% endif %}
-          {% if entry['translation_en'] %} — <em>{{ entry['translation_en'] }}</em>{% endif %}
-			    {% if entry['status'] == 'draft' %}
-      <form method="POST" action="{{ url_for('update_status', entry_id=entry['entry_id']) }}" class="inline-block ml-2">
-        <input type="hidden" name="status" value="verified">
-        <button type="submit" class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded hover:bg-green-200">
-          ✅ Mark Verified
-        </button>
-      </form>
-    {% endif %}
+          {% if entry.get('pos') %}<span class="ml-2 text-gray-600">({{ entry['pos'] }})</span>{% endif %}
+          {% if entry.get('translation_en') %}<span class="ml-1 text-gray-700">{{ entry['translation_en'] }}</span>{% endif %}
         </li>
       {% endfor %}
     </ul>
   {% endif %}
 {% endfor %}
+
+{# ---------------- Word (dedicated, paginated) ---------------- #}
+{% if words %}
+  <h3 class="mt-6 mb-2 text-lg font-bold text-gray-700">Word</h3>
+  <ul class="space-y-1">
+    {% for entry in words %}
+      <li class="text-sm">
+        <a href="{{ url_for('entry_detail', entry_id=entry['entry_id']) }}"
+           class="text-indigo-700 hover:underline font-bold text-base">
+          {{ format_headword(entry['headword'], entry.get('affix_position')) }}
+        </a>
+        {% if entry.get('ipa') %}
+          <span class="ml-2 text-base text-gray-600">[{{ entry['ipa'] }}]</span>
+        {% endif %}
+        {% if entry.get('pos') %}
+          <span class="ml-2 text-gray-600">({{ entry['pos'] }})</span>
+        {% endif %}
+        {% if entry.get('translation_en') %}
+          <span class="ml-1 text-gray-700">{{ entry['translation_en'] }}</span>
+        {% endif %}
+        {% if entry.get('status') == 'draft' %}
+          <form method="POST" action="{{ url_for('update_status', entry_id=entry['entry_id']) }}" class="inline-block ml-2">
+            <input type="hidden" name="status" value="verified">
+            <button type="submit" class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded hover:bg-green-200">
+              ✅ Mark Verified
+            </button>
+          </form>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if words_pages > 1 %}
+    <div class="my-3 flex items-center gap-2 text-sm">
+      <span class="text-gray-600">
+        Word page {{ word_page }} of {{ words_pages }} · {{ words_total }} words
+      </span>
+      <div class="ml-auto flex gap-2">
+        {% if word_page > 1 %}
+          <a class="px-3 py-1 rounded border hover:bg-gray-50"
+             href="{{ url_for('home',
+                 q=search, type=entry_type, pos=pos, status=status, startswith=startswith,
+                 page=page, per_page=per_page,
+                 root_page=root_page, root_per_page=root_per_page,
+                 word_page=1, word_per_page=word_per_page
+               ) }}">« First</a>
+          <a class="px-3 py-1 rounded border hover:bg-gray-50"
+             href="{{ url_for('home',
+                 q=search, type=entry_type, pos=pos, status=status, startswith=startswith,
+                 page=page, per_page=per_page,
+                 root_page=root_page, root_per_page=root_per_page,
+                 word_page=word_page-1, word_per_page=word_per_page
+               ) }}">‹ Prev</a>
+        {% else %}
+          <span class="px-3 py-1 rounded border text-gray-400">« First</span>
+          <span class="px-3 py-1 rounded border text-gray-400">‹ Prev</span>
+        {% endif %}
+
+        {% if word_page < words_pages %}
+          <a class="px-3 py-1 rounded border hover:bg-gray-50"
+             href="{{ url_for('home',
+                 q=search, type=entry_type, pos=pos, status=status, startswith=startswith,
+                 page=page, per_page=per_page,
+                 root_page=root_page, root_per_page=root_per_page,
+                 word_page=word_page+1, word_per_page=word_per_page
+               ) }}">Next ›</a>
+          <a class="px-3 py-1 rounded border hover:bg-gray-50"
+             href="{{ url_for('home',
+                 q=search, type=entry_type, pos=pos, status=status, startswith=startswith,
+                 page=page, per_page=per_page,
+                 root_page=root_page, root_per_page=root_per_page,
+                 word_page=words_pages, word_per_page=word_per_page
+               ) }}">Last »</a>
+        {% else %}
+          <span class="px-3 py-1 rounded border text-gray-400">Next ›</span>
+          <span class="px-3 py-1 rounded border text-gray-400">Last »</span>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
 
 {% endblock %}

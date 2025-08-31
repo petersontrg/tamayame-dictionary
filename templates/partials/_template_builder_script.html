@@ -1,0 +1,494 @@
+<script>
+/* Globals from add_example.html:
+   MORPHEMES, TA_ALLOMORPHS, ALLOMORPHS,
+   ROOT_VOICE_CLASS, PRIMARY_PARADIGM_CLASS_ID,
+   PRMP_BY_CLASS, SLOT_ALLOMORPHS, TRANSITIVITY, ENTRY_ID,
+   INTRANS_TA_PREFS, B_500_MAP
+*/
+
+const PRMP_SLOTS = new Set(['100']);
+let selectedTANumber = null;
+
+// ── Utilities ───────────────────────────────────────────────────
+function getEntryId(){
+  if (typeof window.ENTRY_ID !== 'undefined' && window.ENTRY_ID !== null) return window.ENTRY_ID;
+  const form = document.getElementById('add-example-form');
+  const m = form?.action && form.action.match(/\/add-example\/(\d+)\b/);
+  if (m) return parseInt(m[1], 10);
+  const m2 = (location.pathname || '').match(/\/add-example\/(\d+)\b/);
+  return m2 ? parseInt(m2[1], 10) : null;
+}
+function isNonSingular(n){ return n === 'dl' || n === 'pl' || n === 'dual' || n === 'plural'; }
+function getEffectiveClassId(){ return isNonSingular(selectedTANumber) ? 1 : (PRIMARY_PARADIGM_CLASS_ID || 1); }
+function buildSelect(placeholderText, ariaLabel){
+  const s = document.createElement('select');
+  s.className = 'border rounded px-2 py-1 text-sm mb-1 block';
+  if (ariaLabel) s.setAttribute('aria-label', ariaLabel);
+  if (placeholderText){
+    const opt = document.createElement('option');
+    opt.value = ''; opt.textContent = placeholderText; s.appendChild(opt);
+  }
+  return s;
+}
+function fillOptions(select, list, currentValue, placeholder='— Select —'){
+  select.innerHTML = '';
+  const def = document.createElement('option');
+  def.value = ''; def.textContent = placeholder; select.appendChild(def);
+
+  (list || []).forEach(item => {
+    if (!item) return;
+    const id = item.id ?? item.allomorph_id ?? item.value;
+    const label = item.label ?? item.form ?? '';
+    if (id == null || label === '') return;
+    const opt = document.createElement('option');
+    opt.value = id; opt.textContent = label;
+    if (item.davis_id) opt.dataset.davisId = item.davis_id;
+    if (item.number)   opt.dataset.number  = item.number;
+    select.appendChild(opt);
+  });
+
+  if (currentValue != null && currentValue !== '') select.value = String(currentValue);
+  select.disabled = !(list && list.length);
+}
+function hasBenefactiveSelected() {
+  const bSel = document.querySelector('#slot-target [data-slot="B"] select');
+  return !!(bSel && bSel.value);
+}
+
+// ── Hydration for dropped chips ─────────────────────────────────
+function hydrateChipInPlace(chip, slotType){
+  if (!chip || chip.dataset.hydrated === '1') return chip;
+
+  chip.innerHTML = '';
+  chip.className = 'slot p-2 border rounded bg-white text-sm';
+  chip.dataset.slot = slotType;
+  chip.dataset.hydrated = '1';
+
+  const label = document.createElement('div');
+  label.className = 'font-semibold mb-1';
+  label.textContent = slotType;
+  chip.appendChild(label);
+
+  const holder = document.createElement('div');
+  holder.className = 'dropdown-holder';
+  chip.appendChild(holder);
+
+  const hMor = document.createElement('input'); hMor.type='hidden'; hMor.name='morpheme_ids[]';
+  const hAll = document.createElement('input'); hAll.type='hidden'; hAll.name='allomorph_ids[]';
+  const hTA  = document.createElement('input'); hTA.type='hidden';  hTA.name='ta_allomorph_ids[]';
+  chip.appendChild(hMor); chip.appendChild(hAll); chip.appendChild(hTA);
+
+  const select = document.createElement('select');
+  select.className = 'border rounded px-2 py-1 text-sm mb-1 block';
+  select.innerHTML = '<option value="">— Select —</option>';
+  holder.appendChild(select);
+
+  select.onchange = () => {
+    if (slotType === 'ROOT')      hMor.value = select.value || '';
+    else if (slotType === 'TA')   hTA.value  = select.value || '';
+    else                          hAll.value = select.value || '';
+  };
+
+  const SAFE_ALLOM = (typeof ALLOMORPHS   !== 'undefined' && Array.isArray(ALLOMORPHS))   ? ALLOMORPHS   : [];
+  const SAFE_TA    = (typeof TA_ALLOMORPHS!== 'undefined' && Array.isArray(TA_ALLOMORPHS))? TA_ALLOMORPHS: [];
+  const SAFE_ROOTS = (typeof MORPHEMES    !== 'undefined' && Array.isArray(MORPHEMES))    ? MORPHEMES    : [];
+  const safeVoice  = (typeof ROOT_VOICE_CLASS !== 'undefined') ? ROOT_VOICE_CLASS : null;
+
+  try {
+    if (PRMP_SLOTS.has(slotType)) {
+      select.disabled = true;
+      select.options[0].textContent = 'Select TA and (optionally) 300…';
+      queueMicrotask(() => renderPRMPSelect(chip));
+      return chip;
+    }
+
+    if (slotType === 'ROOT') {
+      SAFE_ROOTS.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id; opt.textContent = m.label || '';
+        select.appendChild(opt);
+      });
+      if (SAFE_ROOTS.length === 1) {
+        select.value = String(SAFE_ROOTS[0].id);
+        hMor.value = String(SAFE_ROOTS[0].id);
+      }
+      return chip;
+    }
+
+    if (slotType === 'TA') {
+      const list = (safeVoice == null)
+        ? SAFE_TA
+        : SAFE_TA.filter(t => String(t.voice_class) === String(safeVoice));
+
+      list.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.label || '';
+        if (t.number)      opt.dataset.number = t.number;
+        if (t.voice_class) opt.dataset.voice  = t.voice_class;
+        select.appendChild(opt);
+      });
+
+      const prefer = (typeof INTRANS_TA_PREFS !== 'undefined') && (INTRANS_TA_PREFS && (INTRANS_TA_PREFS['sg'] || INTRANS_TA_PREFS['singular']));
+      if (prefer) {
+        select.value = String(prefer);
+        hTA.value = select.value || '';
+        const opt = select.selectedOptions[0];
+        selectedTANumber = opt ? (opt.dataset.number || null) : null;
+        queueMicrotask(async () => {
+          await refreshPRMPSelects();
+          await ensureFutPopulated();
+        });
+      }
+
+      select.onchange = async () => {
+        hTA.value = select.value || '';
+        const opt = select.selectedOptions[0];
+        selectedTANumber = opt ? (opt.dataset.number || null) : null;
+        await refreshPRMPSelects();
+        await ensureFutPopulated();
+      };
+
+      return chip;
+    }
+
+    if (slotType === '300' || slotType === 'B') {
+      let list = [];
+      if (slotType === '300') {
+        const preset = (typeof SLOT_ALLOMORPHS !== 'undefined' && SLOT_ALLOMORPHS && SLOT_ALLOMORPHS['300']) || [];
+        if (Array.isArray(preset) && preset.length) {
+          list = preset;
+        } else {
+          const allowed = new Set(['301','302A','302B']);
+          list = SAFE_ALLOM
+            .filter(o => {
+              const did   = String(o.davis_id || '').toUpperCase();
+              const cat   = String(o.category || '').toLowerCase();
+              const gloss = String(o.ur_gloss || '').toUpperCase();
+              return (
+                allowed.has(did) ||
+                cat === 'reflexive' || cat === 'passive' ||
+                ((gloss === 'REFL' || gloss === 'PASS') && did.startsWith('30'))
+              );
+            })
+            .map(o => ({ id:o.id ?? o.allomorph_id ?? o.value,
+                         label:`${o.form ?? ''}${o.ur_gloss ? ` (${o.ur_gloss})` : ''}${o.davis_id ? ` — ${o.davis_id}` : ''}`,
+                         davis_id:o.davis_id }));
+        }
+      } else {
+        list = (typeof SLOT_ALLOMORPHS !== 'undefined' && SLOT_ALLOMORPHS && SLOT_ALLOMORPHS['B']) || [];
+      }
+
+      if (!Array.isArray(list)) list = [];
+      if (!list.length) select.options[0].textContent = '— Select —';
+      list.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.id ?? a.allomorph_id ?? a.value;
+        opt.textContent = a.label || a.form || '';
+        if (a.davis_id) opt.dataset.davisId = a.davis_id;
+        select.appendChild(opt);
+      });
+
+      select.onchange = async () => {
+        hAll.value = select.value || '';
+        applyBTo500Filter();
+        await refreshPRMPSelects();
+        await refresh500Options();
+      };
+      return chip;
+    }
+
+    if (slotType === '200' || slotType === '400' || slotType === '500' || slotType === '600') {
+      (async () => {
+        let list = [];
+        try { list = await fetchSuffixOptionsFor(slotType); } catch (_e) { list = []; }
+        if (!Array.isArray(list)) list = [];
+        if (!list.length) select.options[0].textContent = '— None available —';
+        list.forEach(a => {
+          const opt = document.createElement('option');
+          opt.value = a.id ?? a.allomorph_id ?? a.value;
+          opt.textContent = a.label || a.form || '';
+          if (a.davis_id) opt.dataset.davisId = a.davis_id;
+          select.appendChild(opt);
+        });
+
+        if (slotType === '500') {
+          applyBTo500Filter();
+        }
+      })();
+      return chip;
+    }
+
+    // Default list
+    SAFE_ALLOM.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a.id ?? a.allomorph_id ?? a.value;
+      const label = a.label || `${a.form || ''}${a.ur_gloss ? ` (${a.ur_gloss})` : ''}`;
+      opt.textContent = label;
+      if (a.davis_id) opt.dataset.davisId = a.davis_id;
+      select.appendChild(opt);
+    });
+    return chip;
+
+  } catch (err) {
+    console.error(`[builder] hydrateChipInPlace error in slot ${slotType}:`, err);
+    return chip;
+  }
+}
+
+// ────────────────────────────────────────────────────────────────
+// Refresh 500-series options (voice-sensitive)
+// ────────────────────────────────────────────────────────────────
+async function refresh500Options(){
+  const selects = document.querySelectorAll('#slot-target [data-slot="500"] select');
+  if (!selects.length) return;
+  const list = await fetchSuffixOptionsFor('500'); // server fetch, PASS-aware
+  selects.forEach(sel => {
+    const current = sel.value || null;
+    fillOptions(sel, list, current, list.length ? '— Select —' : '— None available —');
+  });
+  applyBTo500Filter(); // still skip if PASS is active
+}
+
+// ── Voice & fetchers ────────────────────────────────────────────
+function voiceFrom300(){
+  const sel = document.querySelector('#slot-target [data-slot="300"] select');
+  if (!sel) return 'NONE';
+  const opt = sel.selectedOptions?.[0];
+  if (!opt) return 'NONE';
+  const davis = (opt.dataset?.davisId || '').toUpperCase();
+  if (davis === '301') return 'REFL';
+  if (davis === '302A' || davis === '302B') return 'PASS';
+  return 'NONE';
+}
+
+// IMPORTANT: Server-backed options for FUT (200) and PASS (500)
+async function fetchSuffixOptionsFor(slotType){
+  const entryId = getEntryId();
+  const series  = String(slotType);
+
+  // Always server-source FUT so it's complete/canonical
+  if (series === '200' && entryId != null) {
+    try {
+      const res = await fetch(`/get-suffix-options/${entryId}/200`, { credentials:'same-origin', headers:{ 'Accept':'application/json' }, cache:'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        return (data.options || []).map(o => ({
+          id: o.allomorph_id ?? o.id,
+          label: o.label ?? `${o.form || ''}${o.ur_gloss ? ` (${o.ur_gloss})` : ''}${o.davis_id ? ` — ${o.davis_id}` : ''}`,
+          form: o.form, ur_gloss: o.ur_gloss, davis_id: o.davis_id
+        }));
+      }
+    } catch(_e){}
+  }
+
+  // If PASS voice is active, fetch the full 500 family from the server
+  if (series === '500' && entryId != null && voiceFrom300() === 'PASS') {
+    try {
+      const res = await fetch(`/get-suffix-options/${entryId}/500`, { credentials:'same-origin', headers:{ 'Accept':'application/json' }, cache:'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        return (data.options || []).map(o => ({
+          id: o.allomorph_id ?? o.id,
+          label: o.label ?? `${o.form || ''}${o.ur_gloss ? ` (${o.ur_gloss})` : ''}${o.davis_id ? ` — ${o.davis_id}` : ''}`,
+          form: o.form, ur_gloss: o.ur_gloss, davis_id: o.davis_id
+        }));
+      }
+    } catch(_e){}
+  }
+
+  // Fallback to whatever was preloaded for other cases
+  const local = (typeof SLOT_ALLOMORPHS !== 'undefined' && SLOT_ALLOMORPHS && (SLOT_ALLOMORPHS[series] || SLOT_ALLOMORPHS[slotType])) || [];
+  return Array.isArray(local) ? local : [];
+}
+
+async function fetchPrmpVoiceAware(){
+  const entryId = getEntryId();
+  if (entryId == null) return [];
+  const ta = (selectedTANumber || 'sg').toLowerCase();
+  const voice = voiceFrom300();
+  const hasB = hasBenefactiveSelected() ? 1 : 0;
+  const url = `/get-prmp-options/${entryId}/100?ta_number=${encodeURIComponent(ta)}&voice=${encodeURIComponent(voice)}&transitivity=${encodeURIComponent(TRANSITIVITY)}&has_b=${hasB}`;
+  const res = await fetch(url, { credentials:'same-origin', headers:{ 'Accept':'application/json' }, cache:'no-store' });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.options || []).map(o => ({
+    id: (o.allomorph_id ?? o.id ?? o.davis_id),
+    label: `${o.form}${o.ur_gloss ? ` (${o.ur_gloss})` : ''} — ${o.davis_id}`,
+    davis_id: o.davis_id
+  }));
+}
+
+// Filter 500 by B — but skip when PASS is active
+function applyBTo500Filter() {
+  // If PASS is selected, allow all 500s (plural subject in passive)
+  if (voiceFrom300() === 'PASS') return;
+
+  const selects500 = document.querySelectorAll('#slot-target [data-slot="500"] select');
+  if (!selects500.length) return;
+
+  const bSel = document.querySelector('#slot-target [data-slot="B"] select');
+  const allowed = (typeof B_500_MAP !== 'undefined') && bSel && bSel.value
+    ? new Set((B_500_MAP[String(bSel.value)] || []).map(Number))
+    : null;
+
+  selects500.forEach(sel => {
+    const current = sel.value || '';
+    const opts = Array.from(sel.options);
+    if (!allowed) {
+      opts.forEach(o => o.disabled = false);
+      sel.disabled = opts.length <= 1;
+      return;
+    }
+    let anyEnabled = false;
+    opts.forEach(o => {
+      if (!o.value) return;
+      const ok = allowed.has(Number(o.value));
+      o.disabled = !ok;
+      if (ok) anyEnabled = true;
+    });
+    if (current && !allowed.has(Number(current))) sel.value = '';
+    sel.disabled = !anyEnabled;
+  });
+}
+
+// ── PRMP rendering ──────────────────────────────────────────────
+async function renderPRMPSelect(block){
+  try{
+    const hidden = block.querySelector('input[name="allomorph_ids[]"]');
+    let select = block.querySelector('select');
+    if (!select){
+      select = buildSelect('— PRMP —', 'PRMP selector');
+      block.querySelector('.dropdown-holder').appendChild(select);
+      select.onchange = () => { if (hidden) hidden.value = select.value || ''; };
+    }
+
+    select.disabled = true;
+    select.innerHTML = '<option>Waiting for TA…</option>';
+    if (!selectedTANumber) return;
+
+    const list = await fetchPrmpVoiceAware();
+    fillOptions(select, list, null, list.length ? '— select PRMP —' : '— none available —');
+    select.disabled = !list.length;
+    if (hidden) hidden.value = select.value || '';
+  }catch(e){ console.error('renderPRMPSelect error', e); }
+}
+async function refreshPRMPSelects(){
+  const blocks = Array.from(document.querySelectorAll('#slot-target .slot[data-slot="100"]'));
+  await Promise.all(blocks.map(renderPRMPSelect));
+}
+
+// ── Hydrate existing chips (server-rendered) ────────────────────
+async function hydrateBareBlocks(){
+  const target = document.getElementById('slot-target');
+  if (!target) return;
+  const chips = Array.from(target.querySelectorAll('.slot'))
+    .filter(el => el.dataset.hydrated !== '1' && !el.querySelector('.dropdown-holder'));
+  for (const chip of chips) {
+    const slotType = chip.dataset.slot;
+    hydrateChipInPlace(chip, slotType);
+    if (slotType === '100') await renderPRMPSelect(chip);
+  }
+}
+
+// ── DnD lifecycle ───────────────────────────────────────────────
+async function onAddToTarget(evt){
+  const chip = evt.item;
+  const slotType = chip.dataset.slot;
+  if (chip.dataset.hydrated === '1') return;
+
+  hydrateChipInPlace(chip, slotType);
+
+  if (slotType === '100') await renderPRMPSelect(chip);
+  if (slotType === 'TA' || slotType === '300' || slotType === 'B') {
+    applyBTo500Filter();
+    await refreshPRMPSelects();
+    if (slotType === '300') await refresh500Options();
+  }
+  await ensureFutPopulated();
+}
+function setupDnD(){
+  if (typeof Sortable === 'undefined') {
+    console.error('SortableJS not loaded – dropdowns will not render.');
+    return;
+  }
+  Sortable.create(document.getElementById('slot-pool'), {
+    group: { name:'slots', pull:'clone', put:false }, sort:false, animation:100
+  });
+  Sortable.create(document.getElementById('slot-target'), {
+    group: { name:'slots', pull:true, put:true }, animation:150, onAdd:onAddToTarget
+  });
+}
+async function ensureFutPopulated(){
+  const futSelects = document.querySelectorAll('#slot-target [data-slot="200"] select');
+  if (!futSelects.length) return;
+  const list = await fetchSuffixOptionsFor('200');
+  futSelects.forEach(sel => fillOptions(sel, list, sel.value || null, list.length ? '— Select —' : '— None available —'));
+}
+
+// Buttons
+function clearTemplate(){
+  const target = document.getElementById('slot-target');
+  target.innerHTML = ''; selectedTANumber = null;
+}
+function validateTemplate(){
+  const slots = Array.from(document.querySelectorAll('#slot-target .slot')).map(el => el.dataset.slot);
+  const fb = document.getElementById('template-feedback');
+  if (fb) fb.textContent = 'Selected slots: ' + (slots.join(' – ') || '—');
+}
+
+// ── Init (guard against double-init) ────────────────────────────
+if (!window.__stemBuilderInitialized) {
+  window.__stemBuilderInitialized = true;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    setupDnD();
+
+    await hydrateBareBlocks();
+    await refreshPRMPSelects();
+    await ensureFutPopulated();
+    await refresh500Options();   // ← populate 500s on load (PASS-aware)
+    applyBTo500Filter();         // ← then narrow by Benefactive if not PASS
+
+    const target = document.getElementById('slot-target');
+    if (target && 'MutationObserver' in window){
+      let scheduled = false;
+      const mo = new MutationObserver(() => {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(async () => {
+          scheduled = false;
+          const needsHydration = Array.from(target.querySelectorAll('.slot'))
+            .some(el => !el.querySelector('.dropdown-holder') && !el.querySelector('select'));
+          if (needsHydration) {
+            await hydrateBareBlocks();
+            await ensureFutPopulated();
+            await refreshPRMPSelects();
+            await refresh500Options();
+            applyBTo500Filter();
+          }
+        });
+      });
+      mo.observe(target, { childList: true, subtree: false });
+    }
+
+    const form = document.getElementById('add-example-form');
+    if (form){
+      form.addEventListener('submit', function (){
+        const blocks = Array.from(document.querySelectorAll('#slot-target .slot'));
+        const slots = blocks.map(el => el.dataset.slot);
+        this.querySelectorAll('input[name="slots[]"]').forEach(i => i.remove());
+        slots.forEach(slot => {
+          const h = document.createElement('input');
+          h.type = 'hidden'; h.name = 'slots[]'; h.value = slot;
+          this.appendChild(h);
+        });
+      });
+    }
+  });
+
+  // Expose helpers
+  window.clearTemplate = clearTemplate;
+  window.validateTemplate = validateTemplate;
+}
+</script>

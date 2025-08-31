@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="text-xl font-bold mb-4 text-center">Morphosyntactic Templates</h2>
+
+<div class="max-w-4xl mx-auto">
+  <table class="table-auto text-sm w-full border border-collapse">
+    <thead class="bg-gray-100 border-b">
+      <tr>
+        <th class="px-2 py-1 text-left">Template Name</th>
+        <th class="px-2 py-1 text-left">POS</th>
+        <th class="px-2 py-1 text-left">Transitivity</th>
+        <th class="px-2 py-1 text-left">Slot Sequence</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in templates %}
+      <tr class="border-b">
+        <td class="px-2 py-1">
+          <a href="{{ url_for('template_detail', template_id=t['template_id']) }}" class="text-indigo-700 hover:underline">
+            {{ t['name'] }}
+          </a>
+        </td>
+        <td class="px-2 py-1">{{ t['pos'] }}</td>
+        <td class="px-2 py-1">{{ t['transitivity'] }}</td>
+        <td class="px-2 py-1 font-mono">{{ t['slots'] | join(' – ') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p class="mt-4 text-right">
+  <a href="{{ url_for('home') }}" class="text-sm text-indigo-600 hover:underline">⬅ Return to Dictionary</a>
+</p>
+
+{% endblock %}

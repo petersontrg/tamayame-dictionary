@@ -1,69 +1,260 @@
 {% extends "layout.html" %}
+
 {% block content %}
-  <h2 class="text-xl font-bold mb-4">Add Example Sentences</h2>
+  <h2 class="text-xl font-bold mb-4">Add Example Sentence</h2>
 
   {% if message %}
-    <div class="mb-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded">
+    <div class="mb-4 p-3 bg-red-100 text-red-700 border rounded">
       {{ message }}
     </div>
   {% endif %}
 
-  <h3 class="text-lg font-semibold mb-2">Examples</h3>
+  <form id="add-example-form"
+        method="POST"
+        action="{{ url_for('add_example', entry_id=entry_id) }}">
 
-  <form method="POST">
-    <div id="example-container" class="space-y-4 mb-6">
-      {% for i in range(3) %}
-      <div class="grid grid-cols-6 gap-2 items-start example-row">
-        <textarea name="tamayame_text[]" placeholder="Tamayame Text"
-          class="border px-2 py-1 rounded col-span-6 sm:col-span-3"></textarea>
-        <textarea name="gloss_text[]" placeholder="Gloss"
-          class="border px-2 py-1 rounded col-span-6 sm:col-span-2"></textarea>
-        <textarea name="translation_en[]" placeholder="English Translation"
-          class="border px-2 py-1 rounded col-span-6 sm:col-span-3"></textarea>
-        <button type="button" onclick="removeRow(this)"
-          class="text-red-600 hover:underline col-span-6 sm:col-span-1">✖ Remove</button>
+    <!-- ── Example metadata ──────────────────────────────────────── -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      <div>
+        <label class="block font-semibold mb-1">Tamayame Text</label>
+        <textarea name="tamayame_text" required class="border px-2 py-1 rounded w-full" rows="2"></textarea>
       </div>
-      {% endfor %}
+      <div>
+        <label class="block font-semibold mb-1">Gloss</label>
+        <textarea name="gloss_text" required class="border px-2 py-1 rounded w-full" rows="2"></textarea>
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block font-semibold mb-1">English Translation</label>
+        <textarea name="translation_en" required class="border px-2 py-1 rounded w-full" rows="2"></textarea>
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block font-semibold mb-1">Comment (optional)</label>
+        <textarea name="comment" class="border px-2 py-1 rounded w-full" rows="2" placeholder="e.g. Voice Class unclear…"></textarea>
+      </div>
     </div>
 
-    <button type="button" onclick="addRow()" class="text-sm text-indigo-600 hover:underline mb-6">
-      ➕ Add another example
-    </button>
+    <!-- ── Template Builder ───────────────────────────────────────── -->
+    <div class="border rounded p-4 bg-white mb-6">
+      {# The partial should render blocks with data-slot attributes. #}
+      {% include "partials/_template_builder.html" %}
+      <input type="hidden" name="template_id" id="template_id">
+    </div>
 
-    <div class="mt-6">
-      <input type="submit" value="Save Examples"
-             class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+    <!-- ── Controls ────────────────────────────────────────────────── -->
+    <div class="flex space-x-4">
+      <button type="button" onclick="clearTemplate()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Clear Template</button>
+      <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Save Example</button>
     </div>
   </form>
 
   <hr class="my-6">
   <p>
-    <a href="{{ url_for('entry_detail', entry_id=entry_id) }}"
-       class="text-sm text-indigo-600 hover:underline">
+    <a href="{{ url_for('entry_detail', entry_id=entry_id) }}" class="text-sm text-indigo-600 hover:underline">
       ← Back to entry {{ entry_id }}
     </a>
   </p>
+{% endblock %}
 
+{% block scripts %}
+  {{ super() }}
+
+  <!-- ── Globals (single source of truth for the builder) ───────── -->
   <script>
-    function addRow() {
-      const container = document.getElementById("example-container");
-      const row = document.createElement("div");
-      row.className = "grid grid-cols-6 gap-2 items-start example-row";
-      row.innerHTML = `
-        <textarea name="tamayame_text[]" placeholder="Tamayame Text"
-          class="border px-2 py-1 rounded col-span-6 sm:col-span-3"></textarea>
-        <textarea name="gloss_text[]" placeholder="Gloss"
-          class="border px-2 py-1 rounded col-span-6 sm:col-span-2"></textarea>
-        <textarea name="translation_en[]" placeholder="English Translation"
-          class="border px-2 py-1 rounded col-span-6 sm:col-span-3"></textarea>
-        <button type="button" onclick="removeRow(this)"
-          class="text-red-600 hover:underline col-span-6 sm:col-span-1">✖ Remove</button>
-      `;
-      container.appendChild(row);
-    }
+    // High-level context
+    const TRANSITIVITY = {{ (TRANSITIVITY or "Transitive")|tojson }};
+    const INTRANS_MAP  = {{ (INTRANS_MAP or {})|tojson }};
+    const INTRANS_TA_PREFS = {{ (INTRANS_TA_PREFS or {})|tojson }};
 
-    function removeRow(button) {
-      button.closest(".example-row").remove();
-    }
+    // Entry + datasets
+    window.ENTRY_ID = {{ entry_id | tojson }};
+    const MORPHEMES = {{ morphemes | default([]) | tojson }};
+    const TA_ALLOMORPHS = {{ ta_allomorphs | default([]) | tojson }};
+    const ALLOMORPHS = {{ allomorphs | default([]) | tojson }};
+
+    const PRIMARY_PARADIGM_CLASS_ID = {{ primary_paradigm_class_id | default(1) | tojson }};
+    const ROOT_VOICE_CLASS = {{ root_voice_class | default('') | tojson }};
+    const PRMP_BY_CLASS = {{ prmp_by_class | default({}) | tojson }};
+    const SLOT_ALLOMORPHS = {{ slot_allomorphs | default({}) | tojson }};
+    const B_500_MAP = {{ B_500_MAP | default({}) | tojson }}; // benefactive→500 mapping
   </script>
+
+  <!-- ── Live gloss builder (TA number aware) ───────────────────── -->
+  <script>
+    function extractParenText(s) {
+      const m = (s || '').match(/\(([^)]+)\)/);
+      return m ? m[1].trim() : null;
+    }
+    window.generateGloss = function () {
+      const parts = [];
+      document.querySelectorAll('#slot-target .slot').forEach(block => {
+        const slot = block.dataset.slot;
+        const sel  = block.querySelector('select');
+        if (!sel || !sel.value) return;
+        const opt  = sel.selectedOptions[0];
+        const text = opt ? opt.textContent.trim() : '';
+        let gloss = null;
+
+        if (slot === 'TA') {
+          const n = (opt && (opt.dataset.number || '')).toUpperCase();
+          gloss = n || extractParenText(text) || 'TA';
+        } else if (slot === 'ROOT' || slot === '100') {
+          gloss = extractParenText(text) || text;
+        } else {
+          gloss = extractParenText(text) || (text.includes('—') ? text.split('—').pop().trim() : text);
+        }
+        if (gloss) parts.push(gloss);
+      });
+      const field = document.querySelector('textarea[name="gloss_text"]');
+      if (field) field.value = parts.join(' ');
+    };
+    document.addEventListener('change', e => { if (e.target && e.target.closest('#slot-target')) window.generateGloss(); });
+    document.addEventListener('DOMContentLoaded', () => window.generateGloss());
+  </script>
+
+  <!-- ── Normalize TA <option> data attributes (number/voice) ───── -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const taSel = document.querySelector('#slot-target [data-slot="TA"] select');
+      if (!taSel || !Array.isArray(TA_ALLOMORPHS)) return;
+      const byId = {};
+      for (const t of TA_ALLOMORPHS) byId[String(t.id)] = t;
+      for (const opt of taSel.options) {
+        const t = byId[String(opt.value)];
+        if (!t) continue;
+        if (!opt.dataset.number && t.number) opt.dataset.number = t.number;
+        if (!opt.dataset.voice && t.voice_class) opt.dataset.voice = t.voice_class;
+      }
+    });
+  </script>
+
+  <!-- ── Require TA before submit (server also checks) ──────────── -->
+  <script>
+    document.getElementById('add-example-form').addEventListener('submit', function(e) {
+      const hasTA = !!document.querySelector('#slot-target [data-slot="TA"] select')?.value;
+      if (!hasTA) { e.preventDefault(); alert('Please include a TA selection before saving this example.'); }
+    });
+  </script>
+
+  <!-- ── SortableJS for drag-and-drop ───────────────────────────── -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<!-- ── Subclass-aware loader for 400/500 selects (robust) ─────── -->
+<script>
+(function () {
+  const entryId = Number(window.ENTRY_ID || 0);
+
+  // Find any 400/500 selects, regardless of how the partial named them
+  function findSuffixSelects(root = document) {
+    const nodes = new Set();
+
+    // 1) Explicit data attributes
+    root.querySelectorAll('select[data-slot-code="400"], select[data-slot-code="500"]').forEach(n => nodes.add(n));
+    root.querySelectorAll('[data-slot="400"] select, [data-slot="500"] select').forEach(n => nodes.add(n));
+
+    // 2) Common class hooks
+    root.querySelectorAll('.slot-400 select, .slot-500 select').forEach(n => nodes.add(n));
+
+    // 3) Name-based fallbacks (slot_400, slot_500, [400], [500], etc.)
+    root.querySelectorAll('select[name*="slot_400"], select[name*="slot_500"]').forEach(n => nodes.add(n));
+    root.querySelectorAll('select[name*="[400]"], select[name*="[500]"]').forEach(n => nodes.add(n));
+
+    return Array.from(nodes);
+  }
+
+  function inferCode(sel) {
+    const ds = (sel.dataset.slotCode || '').trim().toUpperCase();
+    if (ds === '400' || ds === '500') return ds;
+
+    const parentDS = sel.closest('[data-slot]')?.getAttribute('data-slot')?.toUpperCase();
+    if (parentDS === '400' || parentDS === '500') return parentDS;
+
+    if (sel.closest('.slot-400')) return '400';
+    if (sel.closest('.slot-500')) return '500';
+
+    const name = (sel.getAttribute('name') || '').toUpperCase();
+    if (name.includes('400')) return '400';
+    if (name.includes('500')) return '500';
+
+    return ''; // unknown
+  }
+
+  async function loadSuffixOptions(selectEl) {
+    const code = inferCode(selectEl);
+    if (!code) return;
+
+    // Tag for future runs
+    if (!selectEl.dataset.slotCode) selectEl.dataset.slotCode = code;
+
+    const voice = (document.querySelector('[name="voice"]')?.value || 'NONE').toUpperCase();
+    const url = `/get-suffix-options/${entryId}/${code}?voice=${encodeURIComponent(voice)}`;
+
+    try {
+      const res = await fetch(url, { credentials: 'same-origin' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      // Rebuild options
+      const curr = selectEl.value || '';
+      selectEl.innerHTML = '';
+      const blank = document.createElement('option');
+      blank.value = '';
+      blank.textContent = '— Select —';
+      selectEl.appendChild(blank);
+
+      (data.options || []).forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o.allomorph_id;
+        opt.textContent = o.form
+          + (o.ur_gloss ? ` (${o.ur_gloss})` : '')
+          + (o.davis_id ? ` — ${o.davis_id}` : '');
+        selectEl.appendChild(opt);
+      });
+
+      // Try to preserve selection if still available
+      if (curr && Array.from(selectEl.options).some(o => o.value === curr)) {
+        selectEl.value = curr;
+      }
+
+      // Disable if truly empty
+      selectEl.disabled = (selectEl.options.length <= 1);
+
+      // Debug (optional): uncomment to verify source
+      // console.debug(`Loaded ${code} options from`, data.source, data);
+    } catch (e) {
+      console.error('Failed to load subclass suffix options', code, e);
+    }
+  }
+
+  // Public hook so you (or other scripts) can force-refresh
+  window.refreshSuffixOptions = function refreshSuffixOptions(root = document) {
+    findSuffixSelects(root).forEach(loadSuffixOptions);
+  };
+
+  // Initial run
+  document.addEventListener('DOMContentLoaded', () => {
+    window.refreshSuffixOptions();
+
+    // If voice changes, refresh 400/500 lists
+    const voiceSel = document.querySelector('[name="voice"]');
+    if (voiceSel) {
+      voiceSel.addEventListener('change', () => window.refreshSuffixOptions());
+    }
+  });
+
+  // Catch dynamically added blocks (drag/drop, “add block” buttons, etc.)
+  const mo = new MutationObserver(muts => {
+    for (const m of muts) {
+      m.addedNodes.forEach(node => {
+        if (!(node instanceof Element)) return;
+        const selects = findSuffixSelects(node);
+        if (selects.length) selects.forEach(loadSuffixOptions);
+      });
+    }
+  });
+  mo.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+
+  <!-- Core builder logic (handles TA→100, 300 voice, Benefactive B, hydration, etc.) -->
+  {% include "partials/_template_builder_script.html" %}
 {% endblock %}

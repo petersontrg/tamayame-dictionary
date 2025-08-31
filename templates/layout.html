@@ -4,27 +4,46 @@
   <meta charset="UTF-8">
   <title>Tamayame Dictionary (beta)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- TailwindCSS CDN -->
+  <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- DataTables CSS -->
+  <link 
+    rel="stylesheet" 
+    href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"
+  />
 </head>
 
 <body class="bg-gray-50 text-gray-900 font-sans">
   <div class="max-w-4xl mx-auto px-4 py-6 min-h-screen flex flex-col">
+
     <!-- Header -->
     <header>
       <h1 class="text-3xl font-bold text-center mb-6">
         <a href="/" class="text-indigo-700 hover:underline">
-          Tamayame Dictionary (beta) <span class="text-sm block font-normal">Draft for development and internal use at the LCD only</span>
+          Tamayame Dictionary (beta)
+          <span class="text-sm block font-normal">
+            Draft for development and internal use at the LCD only
+          </span>
         </a>
       </h1>
     </header>
 
     <!-- Main Content -->
     <main class="flex-grow">
-      {% block content %}{% endblock %}
+      {% block content %}
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="bg-green-100 text-green-800 border border-green-300 p-3 rounded mb-4">
+              {% for message in messages %}
+                <p>{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      {% endblock %}
     </main>
-	  
-	  <!-- Navigation -->
+
+    <!-- Navigation -->
     <nav class="text-center mb-4">
       <a href="{{ url_for('home') }}" class="text-sm text-indigo-700 hover:underline mr-4">Home</a>
       <a href="{{ url_for('help_page') }}" class="text-sm text-indigo-700 hover:underline">Guide</a>
@@ -34,11 +53,58 @@
     <footer class="mt-12 text-sm text-center text-gray-500 border-t pt-4">
       <p>
         This online dictionary is designed and maintained by Tyler Peterson (Arizona State University).<br>
+        It is currently in beta development and not intended for public use.<br>
         The contents of this website are the permanent property of the Pueblo of Santa Ana Language and Culture Department.<br>
         Unauthorized linking to, or copying of any content is prohibited.<br>
-        Please contact <a href="mailto:t.peterson@asu.edu" class="text-indigo-600 hover:underline">t.peterson@asu.edu</a> with any questions, concerns, or technical issues.
+        Please contact 
+        <a href="mailto:t.peterson@asu.edu" class="text-indigo-600 hover:underline">
+          t.peterson@asu.edu
+        </a> 
+        with any questions, concerns, or technical issues.
       </p>
+
+<!-- Logos row, centered -->
+<div class="flex justify-center items-center gap-8 mt-4">
+  <a href="#" target="_blank" rel="noopener" class="group inline-flex items-center">
+    <img
+      src="{{ url_for('static', filename='img/LCD_seal.png') }}"
+      alt="Organization 1"
+      class="h-[8rem] w-auto opacity-80 group-hover:opacity-100 transition"
+    />
+  </a>
+  <a href="#" target="_blank" rel="noopener" class="group inline-flex items-center">
+    <img
+      src="{{ url_for('static', filename='img/PSA_seal.png') }}"
+      alt="Organization 2"
+      class="h-[8rem] w-auto opacity-80 group-hover:opacity-100 transition"
+    />
+  </a>
+  <a href="#" target="_blank" rel="noopener" class="group inline-flex items-center">
+    <img
+      src="{{ url_for('static', filename='img/ASU.png') }}"
+      alt="Organization 3"
+      class="h-10 w-auto opacity-80 group-hover:opacity-100 transition"
+    />
+  </a>
+</div>
+
+
     </footer>
   </div>
+
+  <!-- Global Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function(){
+      $('#allomorph-report').DataTable({
+        pageLength: 25,
+        lengthMenu: [10, 25, 50, 100]
+      });
+    });
+  </script>
+
+  <!-- Page-specific scripts will be injected here -->
+  {% block scripts %}{% endblock %}
 </body>
 </html>

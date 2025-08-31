@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h2 class="text-xl font-bold mb-4">Link Examples to "{{ headword }}"</h2>
+
+  <form method="post" action="{{ url_for('confirm_example_links') }}">
+    <input type="hidden" name="entry_id" value="{{ entry_id }}">
+
+    {% for ex in examples %}
+      <div class="mb-2">
+        <label class="block">
+          <input type="checkbox" name="example_ids" value="{{ ex[0] }}" checked>
+          <strong>{{ ex[1] }}</strong> — {{ ex[2] or "No translation" }}
+        </label>
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded">
+      Confirm and Link Selected Examples
+    </button>
+  </form>
+{% endblock %}

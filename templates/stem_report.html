@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="text-xl font-bold mb-4 text-center">Stem Report</h2>
+
+<!-- Search -->
+<div class="max-w-5xl mx-auto mb-3">
+  <input
+    id="stem-search"
+    type="search"
+    placeholder="Search stems..."
+    class="w-full rounded border px-3 py-2 text-sm"
+    oninput="filterTable()"
+  />
+</div>
+
+<div class="flex justify-center">
+  <table id="stem-report" class="table-auto text-sm border border-collapse w-full max-w-5xl">
+    <thead class="bg-gray-100 border-b">
+      <tr>
+        <th class="px-2 py-1 text-left cursor-pointer whitespace-nowrap" onclick="sortTable(0, 'num')">
+          Ex. ID ⬍
+        </th>
+        <th class="px-2 py-1 text-left cursor-pointer whitespace-nowrap" onclick="sortTable(1)">
+          Root ⬍
+        </th>
+        <th class="px-2 py-1 text-left cursor-pointer whitespace-nowrap" onclick="sortTable(2)">
+          Stem ⬍
+        </th>
+        <th class="px-2 py-1 text-left cursor-pointer whitespace-nowrap" onclick="sortTable(3)">
+          Gloss ⬍
+        </th>
+        <!-- NEW: Translation final column -->
+        <th class="px-2 py-1 text-left cursor-pointer whitespace-nowrap" onclick="sortTable(4)">
+          Translation ⬍
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in stems %}
+      <tr class="border-b">
+        <td class="px-2 py-1">
+          <a href="{{ url_for('example_detail', example_id=row.example_id) }}"
+             class="text-indigo-700 hover:underline">
+            {{ row.example_id }}
+          </a>
+        </td>
+        <td class="px-2 py-1">{{ row.headword or '—' }}</td>
+        <td class="px-2 py-1 font-semibold">{{ row.stem }}</td>
+        <td class="px-2 py-1 text-gray-700">{{ row.gloss_line }}</td>
+        <!-- NEW: Translation cell -->
+        <td class="px-2 py-1 text-gray-700">{{ row.translation or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p class="mt-6 text-right">
+  <a href="{{ url_for('home') }}" class="text-sm text-indigo-600 hover:underline">
+    ⬅ Return to Dictionary
+  </a>
+</p>
+
+<script>
+function sortTable(colIndex, type='str') {
+  const table = document.getElementById("stem-report");
+  const tbody = table.tBodies[0];
+  const rows = Array.from(tbody.rows);
+  const current = table.getAttribute("data-sort-col");
+  const asc = !(current == colIndex && table.getAttribute("data-sort-dir") === "asc");
+  rows.sort((a, b) => {
+    let A = a.cells[colIndex].innerText.trim();
+    let B = b.cells[colIndex].innerText.trim();
+    if (type === 'num') { A = parseInt(A) || 0; B = parseInt(B) || 0; }
+    return asc
+      ? A.localeCompare(B, undefined, {numeric: type==='num', sensitivity: 'base'})
+      : B.localeCompare(A, undefined, {numeric: type==='num', sensitivity: 'base'});
+  });
+  rows.forEach(r => tbody.appendChild(r));
+  table.setAttribute("data-sort-col", colIndex);
+  table.setAttribute("data-sort-dir", asc ? "asc" : "desc");
+}
+
+function filterTable() {
+  const q = document.getElementById("stem-search").value.toLowerCase();
+  const rows = document.querySelectorAll("#stem-report tbody tr");
+  rows.forEach(tr => {
+    const text = tr.innerText.toLowerCase();
+    tr.style.display = text.includes(q) ? "" : "none";
+  });
+}
+</script>
+
+{% endblock %}

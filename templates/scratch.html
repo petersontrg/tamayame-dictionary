@@ -1,0 +1,39 @@
+{% for ex in examples %}
+  <div class="border rounded p-3 mb-4 bg-gray-50">
+    <p class="font-semibold text-lg">{{ ex.tamayame_text }}</p>
+    <p class="italic text-sm text-gray-600">{{ ex.translation_en }}</p>
+
+      <a href="{{ url_for('validate_stem', example_id=ex.example_id) }}"
+         class="text-sm text-indigo-600 hover:underline">
+        🔍 Validate
+      </a>
+
+    {% set prmp = ex.prmp or '' %}
+    {% set ta = ex.ta or '' %}
+    {% set root = ex.root or '' %}
+    {% set prmp_gloss = ex.prmp_gloss or '' %}
+    {% set ta_gloss = ex.ta_gloss or '' %}
+    {% set root_gloss = ex.root_gloss or '' %}
+
+    {% if prmp or ta or root %}
+      <table class="mt-2 text-sm font-mono">
+        <tr>
+          <td>{{ prmp }}</td>
+          <td>{{ ta }}</td>
+          <td>{{ root }}</td>
+        </tr>
+        <tr>
+          <td>{{ prmp_gloss }}</td>
+          <td>{{ ta_gloss }}</td>
+          <td>{{ root_gloss }}</td>
+        </tr>
+      </table>
+    {% endif %}
+
+    {% if ex.template_name %}
+      <p class="text-xs text-right text-gray-500 mt-1">
+        Template: {{ ex.template_name }}
+      </p>
+    {% endif %}
+  </div>
+{% endfor %}

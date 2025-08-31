@@ -1,0 +1,84 @@
+{% macro render_example_card(ex, entry=None) %}
+<div class="border rounded p-3 mb-4 bg-gray-50">
+  <p class="font-semibold text-lg">{{ ex.tamayame_text }}</p>
+  <p class="text-sm text-gray-600">{{ ex.translation_en }}</p>
+
+  {% if ex.morphemes %}
+    <table class="mt-2 text-sm font-mono border-t pt-2">
+      <tr>
+        {% for m in ex.morphemes %}
+          <td class="px-2">{{ m.segment }}</td>
+        {% endfor %}
+      </tr>
+      <tr>
+        {% for m in ex.morphemes %}
+          <td class="px-2">{{ m.gloss }}</td>
+        {% endfor %}
+      </tr>
+    </table>
+  {% endif %}
+
+  <div class="mt-2 space-x-4 text-sm">
+    <a href="{{ url_for('example_detail', example_id=ex.example_id) }}" class="text-indigo-600 hover:underline">View Example details and media</a>
+    <a href="{{ url_for('validate_stem', example_id=ex.example_id) }}" class="text-indigo-600 hover:underline">Validate</a>
+    <a href="{{ url_for('edit_realization', example_id=ex.example_id) }}" class="text-indigo-600 hover:underline">Edit UR/SR/IPA</a>
+  </div>
+
+  {% if ex.ipa %}
+    <p class="mt-2 text-sm text-gray-700"><strong>Pronunciation (IPA):</strong> <span class="font-mono">{{ ex.ipa }}</span></p>
+  {% endif %}
+
+  {% if ex.notes %}
+    <p class="text-sm text-gray-700 mt-1"><strong>Morphophonology:</strong> {{ ex.notes }}</p>
+  {% endif %}
+
+  {% if ex.comment %}
+    <p class="text-sm text-gray-700 mt-1"><strong>Comments:</strong> {{ ex.comment }}</p>
+  {% endif %}
+
+  {% if ex.voice_class_id %}
+    <p class="text-xs text-gray-500 mt-1">Voice Class Row (see Davis p.96): {{ ex.voice_class_id }}</p>
+  {% endif %}
+
+  {% if ex.template_name %}
+    <p class="text-xs text-left text-gray-500 mt-1">
+      Template:
+      <a href="{{ url_for('template_detail', template_id=ex.template_id) }}" class="text-indigo-700 hover:underline">
+        {{ ex.template_name }}
+      </a>
+    </p>
+  {% endif %}
+
+  {% if ex.media %}
+    <div class="mt-2 space-y-2">
+      {% for m in ex.media %}
+        {% if m.type == 'audio' %}
+          <audio controls class="w-full">
+            <source src="{{ url_for('static', filename='uploads/' ~ m.filename) }}" type="audio/mpeg">
+          </audio>
+        {% elif m.type == 'video' %}
+          <video controls class="w-full rounded shadow">
+            <source src="{{ url_for('static', filename='uploads/' ~ m.filename) }}" type="video/mp4">
+          </video>
+        {% elif m.type == 'external_document' %}
+          <p class="text-sm">
+            <a href="{{ url_for('static', filename='uploads/' ~ m.filename) }}" target="_blank" class="text-indigo-700 hover:underline">
+              {{ m.filename }}
+            </a>
+          </p>
+        {% endif %}
+        {% if m.notes %}
+          <p class="text-xs text-gray-500 italic">{{ m.notes }}</p>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <p class="mt-2">
+    <a href="{{ url_for('upload_media_for_example', example_id=ex.example_id, entry_id=entry.entry_id if entry else None) }}"
+       class="text-xs text-indigo-600 hover:underline">
+       ➕ Upload Media for this Example
+    </a>
+  </p>
+</div>
+{% endmacro %}

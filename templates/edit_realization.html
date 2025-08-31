@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="text-xl font-bold text-gray-800 mb-4">Edit Realization</h2>
+
+<form method="POST" class="space-y-6">
+
+  <!-- UR -->
+  <div>
+    <label for="ur" class="block text-sm font-medium text-gray-700">Underlying Representation (UR)</label>
+    <input type="text" name="ur" id="ur" value="{{ example.ur or '' }}"
+           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+  </div>
+
+  <!-- SR -->
+  <div>
+    <label for="sr" class="block text-sm font-medium text-gray-700">Surface Representation (SR)</label>
+    <input type="text" name="sr" id="sr" value="{{ example.sr or '' }}"
+           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+  </div>
+
+  <!-- IPA -->
+  <div>
+    <label for="ipa" class="block text-sm font-medium text-gray-700">Pronunciation (IPA)</label>
+    <input type="text" name="ipa" id="ipa" value="{{ example.ipa or '' }}"
+           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 font-mono focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+  </div>
+
+  <!-- Submit -->
+  <div class="flex justify-start space-x-4">
+    <button type="submit"
+            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700">
+      Save Changes
+    </button>
+
+    {% if example.example_id %}
+      <a href="{{ url_for('example_detail', example_id=example.example_id) }}"
+         class="px-4 py-2 text-sm text-indigo-700 hover:underline">
+        ← Back to Example
+      </a>
+    {% endif %}
+  </div>
+
+</form>
+
+{% endblock %}

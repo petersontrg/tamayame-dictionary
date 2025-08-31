@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h2 class="text-xl font-bold mb-4">Partial Paradigm: {{ label }}</h2>
+
+{% if description %}
+  <div class="mb-4 p-4 bg-gray-50 border rounded text-sm text-gray-800">
+    <p class="mb-2"><strong>What this paradigm encodes:</strong> {{ description }}</p>
+
+    <p class="mb-1 italic text-gray-600">Typological context:</p>
+    <ul class="list-disc list-inside">
+      <li>All of the prefixes are 'fusional': they represent a specific <strong>subject–object person combination</strong>.</li>
+      <li>Aligns with the <strong>person hierarchy</strong>: 1st > 2nd > 3rd.</li>
+      <li>Paradigms involving <code>3a</code> or <code>3b</code> are typologically marked as inverse.</li>
+      <li>Each partial paradigm contributes to <strong>Primary Paradigm Classes (A–D)</strong> for transitive verbs.</li>
+    </ul>
+  </div>
+{% endif %}
+
+<p class="mt-6 text-sm">
+ Learn how partial paradigms define <a href="{{ url_for('help_primary_paradigms') }}" class="text-blue-600 hover:underline">
+  Primary Paradigm Classes in Tamayame</a>.
+</p>
+
+  {% if allomorphs %}
+    <ul class="list-disc pl-6">
+      {% for a in allomorphs %}
+        <li><strong>{{ a.form }}</strong> — {{ a.ur_gloss }} ({{ a.davis_id }})</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No PRMP allomorphs found for this partial paradigm.</p>
+  {% endif %}
+
+{% if entry_id and headword %}
+  <a href="{{ url_for('entry_detail', entry_id=entry_id) }}" class="text-blue-600 hover:underline">
+    ← Back to Entry: {{ headword }}
+  </a>
+{% else %}
+  <a href="{{ url_for('home') }}" class="text-blue-600 hover:underline">
+    ← Back to Dictionary
+  </a>
+{% endif %}
+{% endblock %}

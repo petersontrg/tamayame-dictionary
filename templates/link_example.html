@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h2 class="text-xl font-bold mb-4">Link Example to Allomorphs</h2>
+
+  <div class="mb-4 text-sm text-gray-700">
+    <p><strong>Tamayame:</strong> {{ example.tamayame_text }}</p>
+    <p><strong>Gloss:</strong> {{ example.gloss_text }}</p>
+    <p><strong>Translation:</strong> {{ example.translation_en }}</p>
+    <p>
+      <strong>Belongs to:</strong>
+      <a href="{{ url_for('entry_detail', entry_id=example.entry_id) }}" class="text-indigo-700 hover:underline">
+        Entry #{{ example.entry_id }}
+      </a>
+    </p>
+  </div>
+  <hr class="my-4">
+
+  <form method="POST" action="{{ url_for('link_example', example_id=example.example_id) }}">
+
+    <div class="mb-4">
+      <label class="font-medium">TA</label>
+      <select name="ta_allomorph" id="ta_slot" class="w-full border rounded px-2 py-1" required>
+        <option value="" disabled selected>— Select TA —</option>
+        {% for t in ta_options %}
+          <option value="{{ t.ta_id }}" data-number="{{ t.number }}">{{ t.form }} — {{ t.number }} (row {{ t.row }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-4">
+      <label class="font-medium">PRMP</label>
+      <select name="prmp_allomorph" id="prmp_slot" class="w-full border rounded px-2 py-1" required>
+        <option value="">— Select PRMP —</option>
+        {# Options will be filled dynamically via JS #}
+      </select>
+    </div>
+
+    {% if '400' in slots %}
+    <div class="mb-4">
+      <label class="font-medium">Aspect (400)</label>
+      <select name="slot_400" class="w-full border rounded px-2 py-1">
+        <option value="" disabled selected>— Select 400 —</option>
+        {% for a in slot_options['400'] %}
+          <option value="{{ a.allomorph_id }}">{{ a.form }} — {{ a.ur_gloss }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+
+    {% if '500' in slots %}
+    <div class="mb-4">
+      <label class="font-medium">Agreement (500)</label>
+      <select name="slot_500" class="w-full border rounded px-2 py-1">
+        <option value="" disabled selected>— Select 500 —</option>
+        {% for a in slot_options['500'] %}
+          <option value="{{ a.allomorph_id }}">{{ a.form }} — {{ a.ur_gloss }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+
+    <p class="mt-4 italic text-gray-600">
+      ROOT morphemes will be automatically linked from the entry.
+    </p>
+
+    <button type="submit" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+      Save Links
+    </button>
+  </form>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    const prmpOwn = {{ prmp_own|tojson }};
+    const prmpA   = {{ prmp_A|tojson }};
+
+    const taSel   = document.getElementById('ta_slot');
+    const prmpSel = document.getElementById('prmp_slot');
+
+    function renderPRMP(list) {
+      prmpSel.innerHTML =
+        `<option value="">— Select PRMP —</option>` +
+        list.map(a =>
+          `<option value="${a.allomorph_id}">${a.form} (${a.ur_gloss})</option>`
+        ).join('');
+    }
+
+    taSel.addEventListener('change', e => {
+      const number = taSel.selectedOptions[0].dataset.number;
+      renderPRMP(number === 'sg' ? prmpOwn : prmpA);
+    });
+  </script>
+{% endblock %}

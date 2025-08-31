@@ -1,119 +1,256 @@
 {% extends "layout.html" %}
 {% block content %}
+{% from "_example_card.html" import example_card %}
 
-<h2 class="text-2xl font-bold mb-4">{{ format_headword(entry['headword'], entry['affix_position']) }}</h2>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="mb-4 p-3 bg-yellow-100 border border-yellow-300 rounded">
+      {% for msg in messages %}
+        <p class="text-yellow-800">{{ msg }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 
+<h2 class="text-xl font-bold mb-4 text-left">
+  {{ format_headword(entry.headword, entry.affix_position) }}
+  {% if entry.ipa %}
+    <span class="font-normal text-gray-600 text-xl ml-2">[<span class="font-mono">{{ entry.ipa }}</span>]</span>
+  {% endif %}
+</h2>
 
+<div class="mb-4 text-sm text-gray-700">
+  <p><strong>Meaning:</strong> {{ entry.translation_en }}</p>
+  <p><strong>Part of Speech:</strong> {{ entry.pos }}</p>
+  {% if entry.transitivity %}
+    <p><strong>Transitivity:</strong> {{ entry.transitivity|capitalize }}</p>
+  {% endif %}
+  {% if entry.voice_class %}
+    <p><strong>Voice Class:</strong> {{ entry.voice_class }}</p>
+  {% endif %}
+</div>
 
-<ul class="mb-4 space-y-1 text-sm">
-  {% if entry['type'] %}<li><strong>Type:</strong> {{ entry['type'] }}</li>{% endif %}
-  {% if entry['bound_status'] and entry['bound_status'] != 'unknown' %}<li><strong>Bound Status:</strong> {{ entry['bound_status'] }}</li>{% endif %}
-  {% if entry['morpheme_break'] %}<li><strong>Morpheme Break:</strong> {{ entry['morpheme_break'] }}</li>{% endif %}
-  {% if entry['pos'] %}<li><strong>Part of Speech:</strong> {{ entry['pos'] }}</li>{% endif %}
-  {% if entry['gloss_en'] %}<li><strong>Gloss:</strong> {{ entry['gloss_en'] }}</li>{% endif %}
-  {% if entry['translation_en'] %}<li><strong>Translation:</strong> {{ entry['translation_en'] }}</li>{% endif %}
-  {% if entry['definition_tamayame'] %}<li><strong>Tamayame Definition:</strong> {{ entry['definition_tamayame'] }}</li>{% endif %}
-  {% if entry['notes'] %}<li><strong>Notes:</strong> {{ entry['notes'] }}</li>{% endif %}
-  {% if entry['affix_position'] and entry['affix_position'] != 'unknown' %}<li><strong>Affix Position:</strong> {{ entry['affix_position'] }}</li>{% endif %}
-</ul>
+<a href="{{ url_for('upload_media_for_entry', entry_id=entry.entry_id) }}"
+   class="text-sm text-blue-700 hover:underline">
+   ➕ Upload Media (audio, video, photos, documents)
+</a>
 
-<a href="{{ url_for('add_example', entry_id=entry['entry_id']) }}" class="inline-block mb-6 px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">➕ Add Example</a>
+<div class="mt-5"></div>
 
-{% if template %}
-  <div class="mb-6">
-    <h3 class="text-lg font-semibold text-gray-700">Morphosyntactic Template</h3>
-    <p class="text-sm"><strong>{{ template['name'] }}</strong> — {{ template['description'] }}</p>
-    {% if template['slots'] %}
-      <p class="text-sm text-gray-600 mt-1"><strong>Slots:</strong> {{ template['slots'] | join(', ') }}</p>
+{# ── Intransitive summary: compact bullets ── #}
+{% set is_intrans = (entry.get('transitivity') or '')|lower == 'intransitive' %}
+{% set intrans_letter = entry.get('intransitive_class_letter') or entry.get('intransitive_type') %}
+{% set raw_ic = entry.get('intransitive_classes') or {} %}
+{% set ic_sg = raw_ic.get('sg') or raw_ic.get('SG') or raw_ic.get('singular') %}
+{% set ic_dl = raw_ic.get('dl') or raw_ic.get('DL') or raw_ic.get('du') or raw_ic.get('dual') %}
+{% set ic_pl = raw_ic.get('pl') or raw_ic.get('PL') or raw_ic.get('plural') %}
+
+{% if is_intrans or intrans_letter or raw_ic %}
+  <div class="mt-4">
+    <h3 class="text-sm font-semibold text-gray-700">Intransitive Template Class {{ intrans_letter or "—" }}</h3>
+
+    {% if ic_sg or ic_dl or ic_pl %}
+      <h3 class="text-sm font-semibold text-gray-700 mt-3">Intransitive Verb Root Classes</h3>
+      <ul class="list-disc ml-6 text-sm">
+        {% if ic_sg %}
+          <li>
+            Singular — 
+            {% if ic_sg.class_code %}
+              <a class="text-indigo-700 hover:underline"
+                 href="{{ url_for('help_intransitive_classes') ~ '#' ~ ic_sg.class_code }}">{{ ic_sg.class_code }}</a>
+            {% else %}—{% endif %}
+            {% if ic_sg.ta_form %} (TA: {{ ic_sg.ta_form }}){% endif %}
+          </li>
+        {% endif %}
+        {% if ic_dl %}
+          <li>
+            Dual — 
+            {% if ic_dl.class_code %}
+              <a class="text-indigo-700 hover:underline"
+                 href="{{ url_for('help_intransitive_classes') ~ '#' ~ ic_dl.class_code }}">{{ ic_dl.class_code }}</a>
+            {% else %}—{% endif %}
+            {% if ic_dl.ta_form %} (TA: {{ ic_dl.ta_form }}){% endif %}
+          </li>
+        {% endif %}
+        {% if ic_pl %}
+          <li>
+            Plural — 
+            {% if ic_pl.class_code %}
+              <a class="text-indigo-700 hover:underline"
+                 href="{{ url_for('help_intransitive_classes') ~ '#' ~ ic_pl.class_code }}">{{ ic_pl.class_code }}</a>
+            {% else %}—{% endif %}
+            {% if ic_pl.ta_form %} (TA: {{ ic_pl.ta_form }}){% endif %}
+          </li>
+        {% endif %}
+      </ul>
     {% endif %}
   </div>
 {% endif %}
 
-{% if morphemes %}
-  <h3 class="text-lg font-semibold text-gray-700 mt-6">Morphemes</h3>
-  <table class="text-sm border mt-2 w-full">
-    <thead>
-      <tr class="bg-gray-100 border-b">
-        <th class="px-2 py-1 text-left">Segment</th>
-        <th class="px-2 py-1 text-left">Gloss</th>
-        <th class="px-2 py-1 text-left">Position</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for m in morphemes %}
-        <tr class="border-b">
-          <td class="px-2 py-1 font-mono">{{ m['segment'] }}</td>
-          <td class="px-2 py-1">{{ m['gloss'] }}</td>
-          <td class="px-2 py-1 text-gray-600">{{ m['position'] }}</td>
-        </tr>
+{% if entry.primary_paradigm_allomorphs %}
+<p><strong>
+  <a href="{{ url_for('help_primary_paradigms') }}" class="text-indigo-700 hover:underline">
+    Primary Paradigm {{ entry.primary_paradigm_class }}:
+  </a>
+</strong>
+  {% for a in entry.primary_paradigm_allomorphs %}
+    <span class="font-semibold">{{ a.form }}-</span>
+    <span class="text-gray-600 text-sm">({{ a.ur_gloss }}, {{ a.partial_paradigm }})</span>{% if not loop.last %}, {% endif %}
+  {% endfor %}
+    <div class="mt-3"></div>
+<span class="text-gray-600 text-sm">Note: the Primary Paradigm prefixes above are for singular objects only. For non-singular objects (dual and plural as coded by the TA) use <a href="{{ url_for('class_a_morphemes') }}" class="font-semibold text-indigo-700 hover:underline">Primary Paradigm A allomorphs.</a> See Davis p. 108 for details.</span>
+<div class="mt-3"></div>
+</p>
+{% endif %}
+
+{# ── Suffix Subclass (transitives only) ───────────────────────── #}
+{% set is_transitive = (entry.get('transitivity') or '')|lower == 'transitive' %}
+{% set subclass_allos = entry.get('suffix_subclass_allomorphs') or [] %}
+
+{% if is_transitive and (entry.get('suffix_subclass') or subclass_allos) %}
+  <div class="mt-3">
+    <p class="text-sm">
+      <strong>Secondary Paradigm {% if entry.get('suffix_subclass') %} {{ entry['suffix_subclass'] }}{% endif %}:
+      </strong>
+      {% if subclass_allos %}
+        {% for a in subclass_allos %}
+          <span class="font-semibold">{{ a.form }}</span>
+          {% if a.ur_gloss %}
+            <span class="text-gray-600">({{ a.ur_gloss }})</span>
+          {% endif %}
+          {# if a.davis_id %}
+            <span class="text-gray-500">— {{ a.davis_id }}</span>
+          {% endif #}
+          {% if not loop.last %}, {% endif %}
+        {% endfor %}
+      {% else %}
+        <span class="text-gray-500">no subclass allomorphs found</span>
+      {% endif %}
+    </p>
+  </div>
+{% endif %}
+
+{# Suffix Subclass (intransitives only) #}
+{% set is_intransitive = entry.get('transitivity') == 'intransitive' %}
+{% set has_suffix_subclass = entry.get('suffix_subclass_id') is not none %}
+{% set subclass_allos = entry.get('suffix_subclass_allomorphs') or [] %}
+
+{% if is_intransitive and (has_suffix_subclass or subclass_allos) %}
+  <div class="mt-4">
+    <h4 class="font-semibold text-purple-700">Suffix Subclass
+      {% if entry.get('suffix_subclass') %}:
+        <span class="font-normal text-gray-800">{{ entry['suffix_subclass'] }}</span>
+      {% endif %}
+    </h4>
+    {% if subclass_allos %}
+      <ul class="list-disc ml-6 text-sm">
+        {% for a in subclass_allos %}
+          <li>
+            <span class="font-mono">{{ a.form }}</span>
+            {% if a.ur_gloss %}<span class="text-gray-600">‘{{ a.ur_gloss }}’</span>{% endif %}
+            {% if a.davis_id %}<span class="text-gray-500 ml-2">[Davis {{ a.davis_id }}]</span>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-sm text-gray-500 italic">No subclass allomorphs found.</p>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% if entry.pos == 'verb' and entry.type == 'root' and entry.template_id in ['A', 'B'] %}
+  <p><strong>Intransitive Root Class:</strong>
+    {% if entry.template_id == 'A' %}
+      A – ...TA-ROOT
+    {% elif entry.template_id == 'B' %}
+      B – ROOT....TA
+    {% endif %}
+  </p>
+{% endif %}
+
+{% if template %}
+  <p>
+    <strong>Template:</strong>
+    <a href="{{ url_for('template_detail', template_id=template['template_id']) }}" class="text-indigo-700 hover:underline">
+      {{ template['name'] }}
+    </a>
+  </p>
+{% endif %}
+
+<hr class="my-4">
+
+<a href="{{ url_for('link_examples', entry_id=entry.entry_id) }}"
+   class="inline-block mb-4 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+  Link Headword to Examples
+</a>
+
+<a href="{{ url_for('add_example', entry_id=entry.entry_id) }}" class="inline-block mb-4 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+  Add example sentence for this Headword
+</a>
+
+<h3 class="text-lg font-semibold mb-2">Examples</h3>
+<ol class="list-decimal pl-6 space-y-1">
+  {% for ex in examples %}
+    <li>
+      <a href="{{ url_for('example_detail', example_id=ex.example_id) }}" class="text-indigo-700 hover:underline">
+        {{ ex.tamayame_text }} – "{{ ex.translation_en }}"
+      </a>
+    </li>
+  {% endfor %}
+</ol>
+
+<hr class="my-4">
+
+<h3 class="text-lg font-semibold mb-2">Used In Other Entries</h3>
+<ol class="list-decimal pl-6 space-y-1">
+  {% for r in related %}
+    <li>
+      <a href="{{ url_for('entry_detail', entry_id=r.entry_id) }}" class="text-indigo-700 hover:underline">
+        {{ format_headword(r.headword, r.affix_position) }} ({{ r.type }})
+      </a>
+    </li>
+  {% endfor %}
+</ol>
+
+{% if media %}
+  <div class="mt-6">
+    <h3 class="text-lg font-semibold mb-4 text-gray-800">Media</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for m in media %}
+        <div class="border border-gray-200 rounded p-4 shadow-sm bg-white">
+          {% if m.type == 'image' %}
+            <img src="{{ url_for('static', filename='uploads/' ~ m.filename) }}"
+                 alt="{{ m.notes or 'Image' }}"
+                 class="w-full h-auto rounded mb-2">
+          {% elif m.type == 'audio' %}
+            <audio controls class="w-full mb-2">
+              <source src="{{ url_for('static', filename='uploads/' ~ m.filename) }}" type="audio/mpeg">
+            </audio>
+          {% elif m.type == 'video' %}
+            <video controls class="w-full rounded mb-2">
+              <source src="{{ url_for('static', filename='uploads/' ~ m.filename) }}" type="video/mp4">
+            </video>
+          {% elif m.type == 'external_document' %}
+            <p class="text-sm">
+              <a href="{{ url_for('static', filename='uploads/' ~ m.filename) }}"
+                 target="_blank" class="text-indigo-700 hover:underline">
+                 {{ m.filename }}
+              </a>
+            </p>
+          {% endif %}
+          {% if m.notes %}
+            <p class="text-xs text-gray-500 mt-2 italic">{{ m.notes }}</p>
+          {% endif %}
+        </div>
       {% endfor %}
-    </tbody>
-  </table>
+    </div>
+  </div>
 {% endif %}
 
-{% if allomorphs %}
-  <h3 class="text-lg font-semibold text-gray-700 mt-6">Allomorphs</h3>
-  <table class="text-sm border mt-2 w-full">
-    <thead>
-      <tr class="bg-gray-100 border-b">
-        <th class="px-2 py-1 text-left">Form</th>
-        <th class="px-2 py-1 text-left">Category</th>
-        <th class="px-2 py-1 text-left">Davis ID</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for a in allomorphs %}
-        <tr class="border-b">
-          <td class="px-2 py-1 font-mono">{{ a['form'] }}</td>
-          <td class="px-2 py-1">{{ a['category'] }}</td>
-          <td class="px-2 py-1">{{ a['davis_id'] or '—' }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-{% endif %}
-
-{% if examples %}
-  <h3 class="text-lg font-semibold text-gray-700 mt-6">Examples</h3>
-  <ul class="text-sm mt-2 space-y-2">
-    {% for ex in examples %}
-      <li>
-        <div><strong>{{ ex['tamayame_text'] }}</strong></div>
-        <div class="font-mono">{{ ex['gloss_text'] }}</div>
-        <div class="italic text-gray-600">{{ ex['translation_en'] }}</div>
-      </li>
-    {% endfor %}
-  </ul>
-{% endif %}
-
-{% if cross_examples %}
-  <h3 class="text-lg font-semibold text-gray-700 mt-6">Examples from Other Entries</h3>
-  <ul class="text-sm mt-2 space-y-2">
-    {% for ex in cross_examples %}
-      <li>
-        <div><strong>{{ ex['headword'] }}</strong>: {{ ex['tamayame_text'] }}</div>
-        <div class="font-mono">{{ ex['gloss_text'] }}</div>
-        <div class="italic text-gray-600">{{ ex['translation_en'] }}</div>
-      </li>
-    {% endfor %}
-  </ul>
-{% endif %}
-
-{% if related %}
-  <h3 class="text-lg font-semibold text-gray-700 mt-6">Used In</h3>
-  <ul class="text-sm mt-2 space-y-1">
-    {% for r in related %}
-      <li>
-        <a href="{{ url_for('entry_detail', entry_id=r['entry_id']) }}" class="text-indigo-700 hover:underline">
-          {{ r['headword'] }} ({{ r['type'] }}) — {{ r['translation_en'] or r['gloss_en'] }}
-        </a>
-      </li>
-    {% endfor %}
-  </ul>
-{% endif %}
-
-<p class="mt-8 text-sm">
-  <a href="{{ url_for('home') }}" class="text-indigo-600 hover:underline">⬅ Return to Dictionary</a>
+<p class="mt-6 text-right">
+  <a href="{{ url_for('home') }}" class="text-sm text-indigo-600 hover:underline">⬅ Return to Dictionary</a>
+  &nbsp; | &nbsp;
+  <a href="{{ url_for('stem_report') }}" class="text-sm text-indigo-600 hover:underline">Stem Report</a>
 </p>
 
 {% endblock %}

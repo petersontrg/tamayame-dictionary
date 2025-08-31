@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <h2 class="text-xl font-bold mb-4">Class A PRMP Allomorphs</h2>
+
+  {% if prmp_a %}
+    <table class="min-w-full bg-white">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="px-4 py-2 text-left">Form</th>
+          <th class="px-4 py-2 text-left">UR Gloss</th>
+          <th class="px-4 py-2 text-left">Davis ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in prmp_a %}
+          <tr class="border-b">
+            <td class="font-semibold px-4 py-2">{{ a.form }}-</td>
+            <td class="px-4 py-2">{{ a.ur_gloss }}</td>
+            <td class="px-4 py-2">{{ a.davis_id }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No Class A PRMP allomorphs found.</p>
+  {% endif %}
+
+  <p class="mt-4">
+    <a href="{{ url_for('home') }}" class="text-indigo-600 hover:underline">← Back to Home</a>
+  </p>
+{% endblock %}

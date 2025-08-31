@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
+  <h2 class="text-2xl font-bold mb-4">Edit Example #{{ example_id }} &ndash; {{ tamayame }}</h2>
+  <form method="POST" action="" class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="tamayame_text" class="block text-sm font-medium text-gray-700">Tamayame Text</label>
+        <input type="text" name="tamayame_text" id="tamayame_text" value="{{ tamayame }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+      </div>
+      <div>
+        <label for="gloss_text" class="block text-sm font-medium text-gray-700">Gloss</label>
+        <input type="text" name="gloss_text" id="gloss_text" value="{{ gloss }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+      </div>
+      <div class="md:col-span-2">
+        <label for="translation_en" class="block text-sm font-medium text-gray-700">Translation</label>
+        <textarea name="translation_en" id="translation_en" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ translation }}</textarea>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label for="prmp_allomorph" class="block text-sm font-medium text-gray-700">PRMP (pick one or more)</label>
+<select name="prmp_allomorphs[]" multiple>
+  {% for a in prmp_options %}
+    <option value="{{ a.allomorph_id }}"
+      {% if a.allomorph_id in current_prmps %}selected{% endif %}>
+      {{ a.form }} — {{ a.ur_gloss }}
+    </option>
+  {% endfor %}
+</select>
+      </div>
+      <div>
+        <label for="ta_allomorph" class="block text-sm font-medium text-gray-700">TA</label>
+        <select name="ta_allomorph" id="ta_allomorph" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+          <option value="">&mdash; none &mdash;</option>
+          {% for t in ta_options %}
+          <option value="{{ t.ta_id }}" {% if t.ta_id == current_ta %}selected{% endif %}>{{ t.form }} ({{ t.number }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="template_id" class="block text-sm font-medium text-gray-700">Template</label>
+        <select name="template_id" id="template_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+          <option value="">&mdash; none &mdash;</option>
+          {% for t in templates %}
+          <option value="{{ t.template_id }}" {% if t.template_id == current_template_id %}selected{% endif %}>{{ t.name }} ({{ t.slot_order | join('-') }})</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label for="comment" class="block text-sm font-medium text-gray-700">Comment</label>
+      <textarea name="comment" id="comment" rows="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ comment }}</textarea>
+    </div>
+
+    <div class="pt-4 border-t">
+      <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Save changes</button>
+      <a href="{{ url_for('example_detail', example_id=example_id) }}" class="ml-4 text-gray-600 hover:underline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

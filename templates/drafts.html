@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="text-xl font-bold mb-4 text-center">Draft Entries ({{ total }})</h2>
+
+<div class="flex justify-center">
+  <table class="table-auto text-sm border border-collapse w-full max-w-4xl">
+    <thead class="bg-gray-100 border-b">
+      <tr>
+        <th class="px-2 py-1 text-left">Headword</th>
+        <th class="px-2 py-1 text-left">Type</th>
+        <th class="px-2 py-1 text-left">POS</th>
+        <th class="px-2 py-1 text-left">Gloss / Translation</th>
+        <th class="px-2 py-1 text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in entries %}
+      <tr class="border-b">
+        <td class="px-2 py-1">
+          <a href="{{ url_for('entry_detail', entry_id=e.entry_id) }}" class="text-indigo-700 hover:underline">
+            {{ format_headword(e.headword, e.affix_position) }}
+          </a>
+        </td>
+        <td class="px-2 py-1">{{ e.type or '—' }}</td>
+        <td class="px-2 py-1">{{ e.pos or '—' }}</td>
+        <td class="px-2 py-1">
+          <span class="text-gray-700">{{ e.gloss_en or '—' }}</span>
+          {% if e.translation_en %}<span class="text-gray-400"> — {{ e.translation_en }}</span>{% endif %}
+        </td>
+        <td class="px-2 py-1 text-right">
+          <a href="{{ url_for('entry_detail', entry_id=e.entry_id) }}" class="text-indigo-700 hover:underline">View</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="px-2 py-4 text-center text-gray-500">No draft entries.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if total_pages > 1 %}
+<div class="mt-4 flex justify-center gap-2">
+  {% for p in range(1, total_pages + 1) %}
+    {% if p == page %}
+      <span class="px-3 py-1 border rounded bg-gray-100">{{ p }}</span>
+    {% else %}
+      <a href="{{ url_for('draft_entries', page=p, per_page=per_page) }}" class="px-3 py-1 border rounded hover:bg-gray-50">{{ p }}</a>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+<p class="mt-6 text-right">
+  <a href="{{ url_for('home') }}" class="text-sm text-indigo-600 hover:underline">⬅ Return to Dictionary</a>
+</p>
+
+{% endblock %}
