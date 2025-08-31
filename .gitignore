@@ -1,59 +1,64 @@
-# --- OS / Editor junk ---
+# OS
 .DS_Store
 Thumbs.db
-*.swp
-*.swo
-*.sublime-workspace
-*.sublime-project
-.gitignore.sb-*
 
-# --- Python cache ---
+# Python cache / artifacts
 __pycache__/
 *.py[cod]
+*.pyc
 *.pyo
 *.so
+*.egg-info/
+build/
+dist/
 
-# --- Virtual environments ---
+# Virtual environments
 env/
 venv/
 ENV/
 .venv/
 
-# --- SQLite DBs and backups ---
+# Editors / IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+# swap / backup files
+*~
+*.swp
+*.swo
+.#*
+*.bak
+*.tmp
+*.orig
+
+# Databases (optional)
 *.db
 *.db-journal
 *.sqlite
 *.sqlite3
-*_backup.py
-*_old.py
 
-# --- Logs and temporary files ---
+# Logs & temp
 *.log
-*.bak
-*.tmp
+logs/
+tmp/
+temp/
 temp_*.py
-duplicate_attempts.log
 
-# --- Flask instance folder ---
+# Flask / instance (optional)
 instance/
 
-# --- Excel or test data ---
-*.xlsx
-*.xls
-templates.csv
-Notes
+# Media / uploads (keep placeholder if needed)
+static/uploads/**
+!static/uploads/.gitkeep
 
-# --- Local archives ---
-zip/
+# Local zips / archives (optional—remove if you do want these tracked)
 *.zip
+*.tar
+*.tar.gz
+*.tgz
 
-# --- Media and uploads (keep these out of Git) ---
-static/uploads/
-static/img/
-*.jpg
-*.jpeg
-*.png
-*.mov
-*.mp3
-*.pdf
-*.psql
+# Backups
+*_backup.*
+*backup*/
+db_legacy_backup.py
