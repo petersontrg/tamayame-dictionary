@@ -1,0 +1,145 @@
+{% extends "layout.html" %}
+{% block content %}
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold tracking-tight">Primary Paradigm Classes in Tamayame</h1>
+    <p class="mt-2 text-gray-700 max-w-3xl">
+      In Tamayame, <strong>transitive verbs</strong> are divided into four <strong>Primary Paradigm Classes</strong> (A–D),
+      based on which sets of <em>Person, Role, Mood, Polarity prefix allomorphs</em> (PRMPs) they use. Each class corresponds to a fixed
+      combination of three <em>partial paradigms</em>—one for 1st person, 2nd person, and 3rd person. These patterns
+      reflect person hierarchy and inverse-like alignments common in many Indigenous languages of North America.
+    </p>
+  </header>
+
+  <!-- Quick links -->
+  <nav aria-label="On this page" class="mb-6">
+    <ul class="flex flex-wrap gap-3 text-sm">
+      <li><a class="underline hover:no-underline" href="#overview">Class overview</a></li>
+      <li><a class="underline hover:no-underline" href="#why-it-matters">Why it matters</a></li>
+      <li><a class="underline hover:no-underline" href="#examples">Examples by class</a></li>
+      <li><a class="underline hover:no-underline" href="#terminology">Terminology</a></li>
+    </ul>
+  </nav>
+
+
+
+  <section id="overview" class="mt-6">
+    <h2 class="text-2xl font-semibold mb-3">Class overview</h2>
+
+    <p class="text-gray-700 mb-3">Each class bundles three partial paradigms (1st, 2nd, 3rd person):</p>
+
+    <table class="mt-2 w-full border text-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border px-2 py-1 text-left">Class</th>
+          <th class="border px-2 py-1">Partial paradigms</th>
+          <th class="border px-2 py-1 text-left">Interpretation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="border px-2 py-1"><strong>A</strong></td>
+          <td class="border px-2 py-1"><button class="underline hover:no-underline" data-paradigm="1a">1a</button>,
+            <button class="underline hover:no-underline" data-paradigm="2a">2a</button>,
+            <button class="underline hover:no-underline" data-paradigm="3a">3a</button></td>
+          <td class="border px-2 py-1">Direct/canonical alignment across persons.</td>
+        </tr>
+        <tr>
+          <td class="border px-2 py-1"><strong>B</strong></td>
+          <td class="border px-2 py-1"><button class="underline hover:no-underline" data-paradigm="1b">1b</button>,
+            <button class="underline hover:no-underline" data-paradigm="2b">2b</button>,
+            <button class="underline hover:no-underline" data-paradigm="3a">3a</button></td>
+          <td class="border px-2 py-1">Alternate 1st/2nd person forms; direct 3rd.</td>
+        </tr>
+        <tr>
+          <td class="border px-2 py-1"><strong>C</strong></td>
+          <td class="border px-2 py-1"><button class="underline hover:no-underline" data-paradigm="1a">1a</button>,
+            <button class="underline hover:no-underline" data-paradigm="2b">2b</button>,
+            <button class="underline hover:no-underline" data-paradigm="3b">3b</button></td>
+          <td class="border px-2 py-1">Inverse-leaning: marked patterns for 3rd acting on 1st/2nd.</td>
+        </tr>
+        <tr>
+          <td class="border px-2 py-1"><strong>D</strong></td>
+          <td class="border px-2 py-1"><button class="underline hover:no-underline" data-paradigm="1b">1b</button>,
+            <button class="underline hover:no-underline" data-paradigm="2a">2a</button>,
+            <button class="underline hover:no-underline" data-paradigm="3b">3b</button></td>
+          <td class="border px-2 py-1">Hybrid: alternate 1st, regular 2nd, inverse-leaning 3rd.</td>
+        </tr>
+      </tbody>
+    </table>
+
+  <!-- Core rule / reminder -->
+  <div class="border border-amber-300 bg-amber-50 px-4 py-3 text-sm mb-6 mt-6">
+    <strong>Important:</strong> The Classes A–D apply to <em>singular objects</em>. When the object is <em>dual</em> or
+    <em>plural</em>, all transitive verbs take <strong>Class A</strong> regardless of their singular class.
+  </div>
+    <aside class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm">
+      <p class="mb-1"><strong>A typological perspective.</strong> These combinations mirror widely attested
+        <em>person/animacy hierarchy</em> effects: <span class="whitespace-nowrap">1st &gt; 2nd &gt; 3rd</span>, where
+        3→1/2 configurations are comparatively marked in many languages.</p>
+    </aside>
+  </section>
+
+  <section id="why-it-matters" class="mt-10">
+    <h2 class="text-2xl font-semibold mb-3">Why it matters</h2>
+    <ul class="list-disc list-inside text-gray-700 space-y-1">
+      <li><strong>Prediction:</strong> Knowing a verb’s class tells you which PRMP prefixes it combines with.</li>
+      <li><strong>Learning:</strong> Helps learners connect forms across persons/objects more quickly.</li>
+      <li><strong>Searching:</strong> The dictionary can surface all compatible prefixes for the verb root’s class.</li>
+    </ul>
+    <p class="mt-3 text-gray-700">On each dictionary entry page, the Primary Paradigm Class automatically expands to
+      show the full set of pronominal prefixes that work with that verb root.</p>
+  </section>
+
+  <section id="examples" class="mt-10">
+    <h2 class="text-2xl font-semibold mb-3">Examples by class</h2>
+    <p class="text-gray-700 mb-4">These mini-examples are illustrative and focus on the PRMP portion (prefix area).
+      Replace placeholders with attested forms from your corpus as they’re added.</p>
+
+    <div class="grid md:grid-cols-2 gap-4 text-sm">
+      <div class="rounded-lg border p-3">
+        <h3 class="font-semibold">Class A</h3>
+        <p class="text-gray-700">
+          <span class="font-mono">PRMP(1a/2a/3a)</span> → canonical direct alignment.
+        </p>
+        <p class="mt-2"><span class="font-semibold">Example:</span>
+          <span class="font-mono">gy-u-kacha</span> ‘he saw (sg object)’
+        </p>
+      </div>
+      <div class="rounded-lg border p-3">
+        <h3 class="font-semibold">Class B</h3>
+        <p class="text-gray-700"><span class="font-mono">PRMP(1b/2b/3a)</span> → alternate 1st/2nd forms.</p>
+        <p class="mt-2"><span class="font-semibold">Example:</span> <span class="text-gray-500">[add corpus form]</span></p>
+      </div>
+      <div class="rounded-lg border p-3">
+        <h3 class="font-semibold">Class C</h3>
+        <p class="text-gray-700"><span class="font-mono">PRMP(1a/2b/3b)</span> → inverse-leaning for 3rd.</p>
+        <p class="mt-2"><span class="font-semibold">Example:</span> <span class="text-gray-500">[add corpus form]</span></p>
+      </div>
+      <div class="rounded-lg border p-3">
+        <h3 class="font-semibold">Class D</h3>
+        <p class="text-gray-700"><span class="font-mono">PRMP(1b/2a/3b)</span> → hybrid pattern.</p>
+        <p class="mt-2"><span class="font-semibold">Example:</span> <span class="text-gray-500">[add corpus form]</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="terminology" class="mt-10">
+    <h2 class="text-2xl font-semibold mb-3">Terminology</h2>
+    <dl class="grid md:grid-cols-2 gap-4 text-gray-700">
+      <div>
+        <dt class="font-semibold">PRMP (Person, Role, Mood, Polarity)</dt>
+        <dd>Sets of person/number-marking prefixes on the verb.
+          They can vary by context and verb class.</dd>
+      </div>
+      <div>
+        <dt class="font-semibold">Partial paradigm (e.g., 1a, 2b, 3a)</dt>
+        <dd>A named set of PRMP allomorphs for a given person that repeats across verbs and classes.</dd>
+      </div>
+      <div class="md:col-span-2">
+        <dt class="font-semibold">Primary Paradigm Class (A–D)</dt>
+        <dd>The bundle of the three partial paradigms a verb uses (1st, 2nd, 3rd person). For dual/plural objects,
+          the system defaults to Class A.</dd>
+      </div>
+    </dl>
+  </section>
+{% endblock %}

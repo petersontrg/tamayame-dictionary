@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="text-xl font-bold mb-4 text-center">
+  Template: {{ template['name'] }}
+</h2>
+
+<div class="max-w-4xl mx-auto space-y-6">
+
+  <!-- Template metadata -->
+  <div class="bg-gray-100 border p-4 rounded">
+    <p><strong>Transitivity:</strong> {{ template['transitivity'] or '—' }}</p>
+    <p><strong>Slot Sequence:</strong>
+      {% if template['slot_order'] %}
+        {{ template['slot_order'] | join(' – ') }}
+      {% else %}
+        —
+      {% endif %}
+    </p>
+  </div>
+
+  <!-- Examples -->
+  <div>
+    <h3 class="text-lg font-semibold mt-4 mb-2">Examples using this template:</h3>
+    {% if examples %}
+      <ul class="space-y-2">
+        {% for ex in examples %}
+          <li class="p-3 bg-gray-50 border rounded">
+            <a href="{{ url_for('example_detail', example_id=ex['example_id']) }}"
+               class="text-indigo-700 font-semibold hover:underline">
+              {{ ex['tamayame_text'] or '—' }}
+            </a>
+            {% if ex['translation_en'] %}
+              <div class="text-sm text-gray-700">{{ ex['translation_en'] }}</div>
+            {% endif %}
+            {% if ex['ur'] or ex['sr'] or ex['ipa'] %}
+              <div class="mt-1 text-xs text-gray-500">
+                {% if ex['ur'] %}<span class="mr-2"><strong>UR:</strong> {{ ex['ur'] }}</span>{% endif %}
+                {% if ex['sr'] %}<span class="mr-2"><strong>SR:</strong> {{ ex['sr'] }}</span>{% endif %}
+                {% if ex['ipa'] %}<span><strong>IPA:</strong> [{{ ex['ipa'] }}]</span>{% endif %}
+              </div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="mt-2 text-sm italic text-gray-500">
+        No examples are currently linked to this template.
+      </p>
+    {% endif %}
+  </div>
+
+
+
+  <!-- Back link -->
+  <p class="mt-6 text-right">
+    <a href="{{ url_for('home') }}" class="text-sm text-indigo-600 hover:underline">
+      ⬅ Return to Dictionary
+    </a>
+  </p>
+
+</div>
+
+{% endblock %}

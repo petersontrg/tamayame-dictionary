@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="text-xl font-bold mb-4 text-center">
+  PRMP: {{ allomorph.form }} {% if allomorph.ur_gloss %}({{ allomorph.ur_gloss }}){% endif %}
+</h2>
+
+<div class="max-w-3xl mx-auto space-y-6">
+
+  <div class="bg-gray-50 border p-3 rounded">
+    <p><strong>Davis ID:</strong> {{ allomorph.davis_id or '—' }}</p>
+    <p><strong>Category:</strong> {{ allomorph.category or 'PRMP' }}</p>
+  </div>
+
+  <div>
+    <h3 class="font-semibold mb-2">Used with entries</h3>
+    {% if entries %}
+      <ul class="list-disc pl-5">
+        {% for row in entries %}
+          <li>
+            <a href="{{ url_for('entry_detail', entry_id=row.entry_id) }}" class="text-indigo-700 hover:underline">
+              {{ format_headword(row.headword, row.affix_position) }}
+            </a>
+            <span class="text-gray-500 text-sm">({{ row.type }})</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-sm text-gray-500 italic">No linked entries found.</p>
+    {% endif %}
+  </div>
+
+  <div>
+    <h3 class="font-semibold mb-2">Used in examples</h3>
+    {% if examples %}
+      <ul class="space-y-1">
+        {% for ex in examples %}
+          <li class="p-2 bg-gray-50 border rounded">
+            <a href="{{ url_for('example_detail', example_id=ex.example_id) }}" class="font-semibold text-indigo-700 hover:underline">
+              #{{ ex.example_id }}
+            </a>
+            <div>{{ ex.tamayame_text }}</div>
+            <div>{{ ex.translation_en }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-sm text-gray-500 italic">No examples found.</p>
+    {% endif %}
+  </div>
+
+  <p class="mt-4 text-right">
+    <a class="text-sm text-indigo-600 hover:underline" href="{{ url_for('allomorph_report') }}">⬅ Back to Allomorph Report</a>
+  </p>
+</div>
+
+{% endblock %}

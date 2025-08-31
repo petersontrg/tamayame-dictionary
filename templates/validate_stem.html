@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto mt-6 p-4 bg-white shadow rounded">
+  <h2 class="text-xl font-semibold text-gray-800 mb-4">
+    Validation Result for Example {{ example_id }}
+  </h2>
+
+  <div class="mb-4">
+    <p><strong>Template:</strong> {{ template_name }} 
+      <span class="text-gray-500">(Join: {{ template_slots | join(' – ') }})</span>
+    </p>
+    <p><strong>Detected:</strong> {{ detected_slots | join(' – ') }}</p>
+  </div>
+
+  <ul class="list-disc list-inside space-y-1 mb-6">
+    {% for item in results %}
+      <li class="{% if '✅' in item %}text-green-600{% elif '❌' in item %}text-red-600{% elif '⚠️' in item %}text-yellow-600{% endif %}">
+        {{ item }}
+      </li>
+    {% endfor %}
+  </ul>
+
+  <a href="{{ url_for('entry_detail', entry_id=entry_id) }}" 
+     class="inline-block px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+    ⬅ Back to Entry
+  </a>
+</div>
+{% endblock %}

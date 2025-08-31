@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="text-xl font-bold mb-4">
+  Upload Media for
+  {% if entry_id %}Entry {{ entry_id }}{% elif example_id %}Example {{ example_id }}{% endif %}
+</h2>
+
+<form method="post" enctype="multipart/form-data" class="space-y-4">
+  <label class="block">
+    File:
+    <input type="file" name="file" required class="border p-2 rounded">
+  </label>
+
+  <label class="block">
+    Type:
+    <select name="type" required class="border p-2 rounded">
+      <option value="image">Image</option>
+      <option value="audio">Audio</option>
+      <option value="video">Video</option>
+      <option value="external_document">External Document</option>
+    </select>
+  </label>
+
+  <label class="block">
+    Notes:
+    <textarea name="notes" rows="3" class="w-full border p-2 rounded"></textarea>
+  </label>
+
+  <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Upload</button>
+</form>
+
+<p class="mt-6 text-sm">
+  {% if entry_id %}
+    <a href="{{ url_for('entry_detail', entry_id=entry_id) }}" class="text-indigo-700 hover:underline">⬅ Back to Entry</a>
+  {% elif example_id %}
+    <a href="{{ url_for('entry_detail', entry_id=request.args.get('entry_id')) }}" class="text-indigo-700 hover:underline">⬅ Back to Entry</a>
+  {% endif %}
+</p>
+
+{% endblock %}

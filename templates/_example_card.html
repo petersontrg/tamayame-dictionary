@@ -1,0 +1,91 @@
+{% macro example_card(ex) %}
+{# Normalize names so the macro always finds the data #}
+{% set prmp = ex.prmp_allomorphs or ex.example_prmp_allomorphs or [] %}
+{% set ta   = ex.ta_allomorphs   or ex.example_ta_allomorphs   or [] %}
+{% set allomorphs = ex.allomorphs or ex.example_allomorphs or (prmp + ta) %}
+<div class="border rounded p-3 mb-4 bg-gray-50">
+
+  <!-- Tamayame Text -->
+  <p class="font-semibold text-lg">{{ ex.tamayame_text | default('—') }}</p>
+
+  <!-- English Translation -->
+  <p class="text-sm text-gray-600">{{ ex.translation_en | default('—') }}</p>
+
+  <!-- Interlinear Gloss Table -->
+  {% if ex.morphemes %}
+    {% set num_cols = ex.morphemes | length %}
+    {% set raw_gloss = ex.gloss_text | default('') | trim %}
+    {% set gloss_cells = raw_gloss.split(' ') %}
+    <table class="mt-2 text-sm font-mono border-t pt-2">
+      <!-- row 1: segments -->
+      <tr>
+        {% for m in ex.morphemes %}
+          <td class="px-2">{{ m.segment }}</td>
+        {% endfor %}
+      </tr>
+      <!-- row 2: morpheme gloss -->
+      <tr>
+        {% for m in ex.morphemes %}
+          <td class="px-2 text-gray-700">{{ m.gloss }}</td>
+        {% endfor %}
+      </tr>
+      <!-- row 3: user gloss text -->
+      {% if ex.gloss_text %}
+        <tr>
+          {% for i in range(num_cols) %}
+            {% set g = gloss_cells[i] if i < gloss_cells | length else '' %}
+            <td class="px-2 text-gray-500">{{ g }}</td>
+          {% endfor %}
+        </tr>
+      {% endif %}
+    </table>
+  {% endif %}
+
+  <!-- Realizations -->
+  {% if ex.ur or ex.sr or ex.ipa %}
+    <div class="mt-2 text-sm">
+      {% if ex.ur %}<p><strong>UR:</strong> <span class="font-mono text-gray-800">{{ ex.ur }}</span></p>{% endif %}
+      {% if ex.sr %}<p><strong>SR:</strong> <span class="font-mono text-gray-800">{{ ex.sr }}</span></p>{% endif %}
+      {% if ex.ipa %}<p><strong>IPA:</strong> <span class="font-mono text-gray-800">{{ ex.ipa }}</span></p>{% endif %}
+    </div>
+  {% endif %}
+
+  <!-- Comments & Notes -->
+  {% if ex.comment %}<p class="text-sm text-gray-700 mt-2"><strong>Comment:</strong> {{ ex.comment }}</p>{% endif %}
+  {% if ex.notes %}<p class="text-sm text-gray-700 mt-2"><strong>Notes:</strong> {{ ex.notes }}</p>{% endif %}
+
+  <!-- Template Label -->
+  {% if ex.template_label %}
+    <p class="text-xs text-gray-500 mt-2">
+      Template: <a href="{{ url_for('template_detail', template_id=ex.template_id) }}" class="text-indigo-700 hover:underline">{{ ex.template_label }}</a>
+    </p>
+  {% endif %}
+
+  <!-- Voice Class -->
+  {% if ex.voice_class_id %}<p class="text-xs text-gray-500 mt-1">Voice Class Paradigm Row: {{ ex.voice_class_id }}</p>{% endif %}
+
+  <!-- Media -->
+  {% if ex.media %}
+    <div class="mt-2 space-y-2">
+      {% for m in ex.media %}
+        {% if m.type == 'audio' %}
+          <audio controls class="w-full"><source src="{{ url_for('static', filename='uploads/' ~ m.filename) }}" type="audio/mpeg"></audio>
+        {% elif m.type == 'video' %}
+          <video controls class="w-full rounded shadow"><source src="{{ url_for('static', filename='uploads/' ~ m.filename) }}" type="video/mp4"></video>
+        {% elif m.type == 'external_document' %}
+          <p class="text-sm"><a href="{{ url_for('static', filename='uploads/' ~ m.filename) }}" target="_blank" class="text-indigo-700 hover:underline">{{ m.filename }}</a></p>
+        {% endif %}
+        {% if m.notes %}<p class="text-xs text-gray-500 italic">{{ m.notes }}</p>{% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Actions -->
+  <div class="mt-3 flex flex-wrap gap-3 text-sm">
+    <a href="{{ url_for('edit_realization', example_id=ex.example_id) }}" class="text-indigo-700 hover:underline">Edit UR/SR/IPA</a> |
+    <a href="{{ url_for('upload_media_for_example', example_id=ex.example_id) }}" class="text-indigo-700 hover:underline">Upload Media</a> |
+    <a href="{{ url_for('validate_stem', example_id=ex.example_id) }}" class="text-indigo-700 hover:underline">Validate (for diagnostic purposes)</a> 
+  </div>
+
+</div>
+{% endmacro %}
