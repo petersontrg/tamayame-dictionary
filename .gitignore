@@ -6,6 +6,7 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 *.so
+*.pyc
 
 # Virtual environments
 env/
@@ -27,6 +28,7 @@ ENV/
 *.log
 *.bak
 *.tmp
+temp_*.py
 
 # Flask instance folder (optional)
 instance/
@@ -34,3 +36,25 @@ instance/
 # Excel or test data
 *.xlsx
 *.xls
+
+# Local exports
+zip/
+*.zip
+
+# Media and uploads
+static/uploads/
+static/img/
+*.jpg
+*.png
+*.mov
+*.mp3
+*.pdf
+*.psql
+Notes
+
+# Backups / temp
+*_backup.py
+*_old.py
+temp_*.py
+templates/*working_backup.html
+templates.csv
